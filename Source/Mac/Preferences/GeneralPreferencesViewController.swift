@@ -62,7 +62,8 @@ class GeneralPreferencesViewController: BasePreferencesViewController {
         }
 
         let style = userDefaults.object(forKey: OVCandidateListStyleNameKey) as? String
-        fieldCandidateStyle.selectCell(withTag: style == OVHorizontalCandidateListStyleName ? 1 : 0)
+        fieldCandidateStyle.selectCell(
+            withTag: style == OVCandidateListStyle.horizontal.rawValue ? 1 : 0)
         configureKeyboardLayoutList(fieldAlphanumericKeyboardLayout)
         fieldAlwaysFallbackOnShift.state =
             userDefaults.bool(forKey: OVFallbackToAlphanumericKeyboardLayoutOnShiftKey)
@@ -104,10 +105,9 @@ class GeneralPreferencesViewController: BasePreferencesViewController {
             userDefaults.set(
                 (candidateSize as NSString).integerValue, forKey: OVCandidateListTextSizeKey)
         }
-        userDefaults.set(
-            fieldCandidateStyle.selectedCell()?.tag == 0
-                ? OVVerticalCandidateListStyleName : OVHorizontalCandidateListStyleName,
-            forKey: OVCandidateListStyleNameKey)
+        let style: OVCandidateListStyle =
+            fieldCandidateStyle.selectedCell()?.tag == 0 ? .vertical : .horizontal
+        userDefaults.set(style.rawValue, forKey: OVCandidateListStyleNameKey)
         if let layout = fieldAlphanumericKeyboardLayout.selectedItem?.representedObject as? String {
             setSharedAlphanumericKeyboardLayout(layout)
         }

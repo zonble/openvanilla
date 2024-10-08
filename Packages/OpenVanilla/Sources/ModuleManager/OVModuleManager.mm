@@ -334,7 +334,7 @@ static string InputMethodConfigIdentifier(const string &identifier) {
     _candidateService->applyFontSettings(candidateFontName, candidateFontSize);
 
     NSString *candidateStyle = [[NSUserDefaults standardUserDefaults] stringForKey:OVCandidateListStyleNameKey];
-    if (![candidateStyle isEqual:OVHorizontalCandidateListStyleName]) {
+    if (![candidateStyle isEqual:OVCandidateListStyleHorizontal]) {
         _candidateService->useVerticalCandidatePanel();
     }
     else {

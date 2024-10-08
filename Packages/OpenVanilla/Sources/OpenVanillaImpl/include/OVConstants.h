@@ -51,8 +51,10 @@ extern const NSUInteger OVDefaultCandidateListTextSize;
 extern const NSUInteger OVMaxCandidateListTextSize;
 extern const NSUInteger OVMinCandidateListTextSize;
 
-extern NSString *const OVVerticalCandidateListStyleName;
-extern NSString *const OVHorizontalCandidateListStyleName;
+typedef NSString *const OVCandidateListStyle NS_STRING_ENUM;
+
+extern OVCandidateListStyle OVCandidateListStyleVertical;
+extern OVCandidateListStyle OVCandidateListStyleHorizontal;
 
 extern const NSTimeInterval OVNextUpdateCheckInterval;
 extern const NSTimeInterval OVNextUpdateCheckRemindLaterInterval;

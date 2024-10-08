@@ -2,7 +2,7 @@
 // OVConstants.m
 //
 // Copyright (c) 2004-2012 Lukhnos Liu (lukhnos at openvanilla dot org)
-// 
+//
 // Permission is hereby granted, free of charge, to any person
 // obtaining a copy of this software and associated documentation
 // files (the "Software"), to deal in the Software without
@@ -31,27 +31,34 @@ NSString *const OVInputMethodConnectionName = @"OpenVanilla_1_Connection";
 
 NSString *const OVActiveInputMethodIdentifierKey = @"ActiveInputMethod";
 NSString *const OVAlphanumericKeyboardLayoutKey = @"AlphanumericKeyboardLayout";
-NSString *const OVFallbackToAlphanumericKeyboardLayoutOnShiftKey = @"FallbackToAlphanumericKeyboardLayoutOnShiftKey";
+NSString *const OVFallbackToAlphanumericKeyboardLayoutOnShiftKey =
+    @"FallbackToAlphanumericKeyboardLayoutOnShiftKey";
 NSString *const OVCandidateListStyleNameKey = @"CandidateListStyle";
 NSString *const OVCandidateListTextSizeKey = @"CandidateListTextSize";
 NSString *const OVCandidateTextFontNameKey = @"CandidateTextFontName";
-NSString *const OVMakeSoundFeedbackOnInputErrorKey = @"MakeSoundFeedbackOnInputError";
+NSString *const OVMakeSoundFeedbackOnInputErrorKey =
+    @"MakeSoundFeedbackOnInputError";
 NSString *const OVLastUpdateCheckTimeKey = @"LastUpdateCheckTime";
 NSString *const OVNextUpdateCheckTimeKey = @"NextUpdateCheckTime";
 NSString *const OVCheckForUpdateKey = @"CheckForUpdate";
-NSString *const OVTraditionalToSimplifiedChineseFilterEnabledKey = @"EnableTraditionalToSimplifiedChineseFilter";
-NSString *const OVSimplifiedToTraditionalChineseFilterEnabledKey = @"EnableSimplifiedToTraditionalChineseFilter";
-NSString *const OVAssociatedPhrasesAroundFilterEnabledKey = @"EnableAssociatedPhrasesAroundFilter";
+NSString *const OVTraditionalToSimplifiedChineseFilterEnabledKey =
+    @"EnableTraditionalToSimplifiedChineseFilter";
+NSString *const OVSimplifiedToTraditionalChineseFilterEnabledKey =
+    @"EnableSimplifiedToTraditionalChineseFilter";
+NSString *const OVAssociatedPhrasesAroundFilterEnabledKey =
+    @"EnableAssociatedPhrasesAroundFilter";
 
-NSString *const OVDefaultInputMethodIdentifier = @"org.openvanilla.OVIMTableBased.cj";
-NSString *const OVDefaultAlphanumericKeyboardLayoutIdentifier = @"com.apple.keylayout.US";
+NSString *const OVDefaultInputMethodIdentifier =
+    @"org.openvanilla.OVIMTableBased.cj";
+NSString *const OVDefaultAlphanumericKeyboardLayoutIdentifier =
+    @"com.apple.keylayout.US";
 NSString *const OVDefaultCandidateListStyleName = @"vertical";
 const NSUInteger OVDefaultCandidateListTextSize = 16;
 const NSUInteger OVMaxCandidateListTextSize = 256;
 const NSUInteger OVMinCandidateListTextSize = 12;
 
-NSString *const OVVerticalCandidateListStyleName = @"vertical";
-NSString *const OVHorizontalCandidateListStyleName = @"horizontal";
+NSString *const OVCandidateListStyleVertical = @"vertical";
+NSString *const OVCandidateListStyleHorizontal = @"horizontal";
 
 #if DEBUG
 const NSTimeInterval OVNextUpdateCheckInterval = 600.0;
@@ -65,5 +72,6 @@ const NSTimeInterval OVNextUpdateCheckRetryInterval = 3600.0;
 
 NSString *const OVMainSiteURLString = @"https://openvanilla.org";
 NSString *const OVUserGuideURLString = @"https://openvanilla.org/docs/";
-NSString *const OVUpdateCheckInfoURLString = @"https://openvanilla.org/updates/Info.plist";
+NSString *const OVUpdateCheckInfoURLString =
+    @"https://openvanilla.org/updates/Info.plist";
 NSString *const OVUpdateDownloadURLString = @"https://openvanilla.org/updates/";
