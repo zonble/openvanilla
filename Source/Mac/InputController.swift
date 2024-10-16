@@ -227,13 +227,21 @@ class InputController: IMKInputController {
     }
 
     private func handle(ovKey: OpenVanilla.OVKey, cliemt: IMKTextInput) -> Bool {
+        var key = ovKey
         guard let inputMethodContext else {
             return false
         }
         var handled = false
         var candidatePanelFallThrough = false
-//        let panel = OVModuleManager.default.candidateService.pointee.currentCandidatePanel()
+        let panel = OVModuleManager.default.candidatePanel
+        if let panel, panel.pointee.isInControl() {
+            let result = panel.pointee.handleKey(&key)
+            switch result {
 
+            default:
+                break
+            }
+        }
 
 
         return false

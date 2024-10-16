@@ -205,7 +205,11 @@ namespace OpenVanilla {
         {
             return 0;
         }
-    };    
+
+        virtual OVCandidatePanel* currentCandidatePanel() {
+            return 0;
+        }
+    };
 };
 
 #endif

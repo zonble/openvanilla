@@ -54,6 +54,7 @@ namespace OpenVanilla {
     class OVInputMethod;
     class OVAroundFilter;
     class OVEventHandlingContext;
+    class OVOneDimensionalCandidatePanelImpl;
     typedef std::map<std::string, OVInputMethod *> OVInputMethodMap;
 };
 
@@ -84,6 +85,9 @@ namespace OpenVanilla {
 @property (assign, readonly) OpenVanilla::OVLoaderService* loaderServiceRef;
 /// Simply another reference to candidateService for Swift/C++ interop.
 @property (assign, readonly) OpenVanilla::OVCandidateService* candidateServiceRef;
+
+@property (assign, readonly, nullable) OpenVanilla::OVOneDimensionalCandidatePanelImpl* candidatePanel;
+
 
 @property (strong) NSWindowController *toolTipWindowController;
 

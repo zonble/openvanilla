@@ -634,8 +634,14 @@ static string InputMethodConfigIdentifier(const string &identifier) {
     return _loaderService;
 }
 
-- (OpenVanilla::OVCandidateService*)candidateServiceRef {
+- (OpenVanilla::OVCandidateService*)candidateServiceRef
+{
     return _candidateService;
+}
+
+- (OpenVanilla::OVOneDimensionalCandidatePanelImpl*) candidatePanel
+{
+    return _candidateService->currentCandidatePanel();
 }
 
 #pragma mark - Private Methods
