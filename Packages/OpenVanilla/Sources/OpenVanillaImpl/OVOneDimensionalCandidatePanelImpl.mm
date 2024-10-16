@@ -222,6 +222,13 @@ OVCandidateList* OVOneDimensionalCandidatePanelImpl::candidateList()
     return &m_candidateList;
 }
 
+string OVOneDimensionalCandidatePanelImpl::candidate() const
+{
+    size_t index = currentHightlightIndexInCandidateList();
+    string candidate = m_candidateList.candidateAtIndex(index);
+    return candidate;
+}
+
 size_t OVOneDimensionalCandidatePanelImpl::candidatesPerPage() const
 {
     return (size_t)m_candidateController.keyLabels.count;

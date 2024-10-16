@@ -13,18 +13,25 @@ class InputController: IMKInputController {
     fileprivate var associatedPhrasesContextInUse = false
     fileprivate var currentClient: IMKTextInput?
 
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+        if var inputMethodContext {
+            OVModuleManager.default.delete(&inputMethodContext)
+        }
+        if var associatedPhrasesContext {
+            OVModuleManager.default.delete(&associatedPhrasesContext)
+        }
+    }
+
     override init!(server: IMKServer!, delegate: Any!, client inputClient: Any!) {
         super.init(server: server, delegate: delegate, client: inputClient)
-        // TODO: Notification
+        NotificationCenter.default.addObserver(self, selector: #selector(handleInputMethodChange(_:)), name: NSNotification.Name.OVModuleManagerDidUpdateActiveInputMethod, object: OVModuleManager.default)
     }
 
     func startOrStopAssociatedPhrasesContext() {
     }
 
     func stopAssociatedPhrasesContext() {
-    }
-
-    @objc func updateClientComposingBuffer(_ sender: Any?) {
     }
 
     //MARK: - IMKStateSetting protocol methods
@@ -34,22 +41,24 @@ class InputController: IMKInputController {
             return
         }
         OVModuleManager.default.candidateService.pointee.resetAll()
-        if let activeInputMethod = OVModuleManager.default.activeInputMethodIdentifier {
+        if let activeInputMethod = OVModuleManager.default.activeInputMethodIdentifier as? String {
             let keyboardLayout = OVModuleManager.default.alphanumericKeyboardLayout(
-                forInputMethod: activeInputMethod as String)
+                forInputMethod: activeInputMethod)
             client.overrideKeyboard(withKeyboardNamed: keyboardLayout)
 
             OVModuleManager.default.synchronizeActiveInputMethodSettings()
-
-            if inputMethodContext == nil {
-                inputMethodContext =
-                    OVModuleManager.default.activeInputMethod.pointee.createContext()?.pointee
-            }
-            if var inputMethodContext {
-                let service = OVModuleManager.default.loaderServiceRef
-                inputMethodContext.startSession(service)
-            }
         }
+        if inputMethodContext == nil {
+            inputMethodContext =
+                OVModuleManager.default.activeInputMethod.pointee.createContext()?.pointee
+        }
+        if var inputMethodContext {
+            let service = OVModuleManager.default.loaderService.pointee
+            var loaderService: OpenVanilla.OVLoaderService = unsafeBitCast(
+                service, to: OpenVanilla.OVLoaderService.self)
+            inputMethodContext.startSession(&loaderService)
+        }
+
         startOrStopAssociatedPhrasesContext()
         currentClient = client
         // TODO: Notification
@@ -65,8 +74,10 @@ class InputController: IMKInputController {
         }
 
         if var inputMethodContext {
-            let service = OVModuleManager.default.loaderServiceRef
-            inputMethodContext.stopSession(service)
+            let service = OVModuleManager.default.loaderService.pointee
+            var loaderService: OpenVanilla.OVLoaderService = unsafeBitCast(
+                service, to: OpenVanilla.OVLoaderService.self)
+            inputMethodContext.stopSession(&loaderService)
             OVModuleManager.default.delete(&inputMethodContext)
             self.inputMethodContext = nil
         }
@@ -112,7 +123,7 @@ class InputController: IMKInputController {
             if client.bundleIdentifier() == "com.apple.Terminal"
                 && String(describing: type(of: client)) == "IPMDServerClientWrapper"
             {
-                self.perform(
+                perform(
                     #selector(updateClientComposingBuffer(_:)), with: currentClient, afterDelay: 0.0
                 )
                 return
@@ -228,24 +239,272 @@ class InputController: IMKInputController {
 
     private func handle(ovKey: OpenVanilla.OVKey, cliemt: IMKTextInput) -> Bool {
         var key = ovKey
-        guard let inputMethodContext else {
+        guard var inputMethodContext else {
             return false
         }
+        var candidateServiceRef = unsafeBitCast(
+            OVModuleManager.default.candidateService.pointee,
+            to: OpenVanilla.OVCandidateService.self)
+        var loaderServiceRef = unsafeBitCast(
+            OVModuleManager.default.loaderService.pointee, to: OpenVanilla.OVLoaderService.self)
+        var readingTextRef = unsafeBitCast(readingText, to: OpenVanilla.OVTextBuffer.self)
+        var composingTextRef = unsafeBitCast(composingText, to: OpenVanilla.OVTextBuffer.self)
+
         var handled = false
         var candidatePanelFallThrough = false
-        let panel = OVModuleManager.default.candidatePanel
-        if let panel, panel.pointee.isInControl() {
-            let result = panel.pointee.handleKey(&key)
-            switch result {
+        let panel = OVModuleManager.default.candidatePanel?.pointee
+        if var panel, panel.isInControl() {
+            let handleKeyResult = panel.handleKey(&key)
+            let result = OVOneDimensionalCandidatePanelResultMapping.remap(status: handleKeyResult)
 
-            default:
-                break
+            switch result {
+            case .handled:
+                return true
+            case .candidateSelected:
+                let index = panel.currentHightlightIndexInCandidateList()
+                let candidate = panel.candidate()
+                handled = inputMethodContext.candidateSelected(
+                    &candidateServiceRef, candidate, index, &readingTextRef, &composingTextRef,
+                    &loaderServiceRef)
+            case .canceled:
+                inputMethodContext.candidateCanceled(
+                    &candidateServiceRef, &readingTextRef, &composingTextRef, &loaderServiceRef)
+                handled = true
+                candidatePanelFallThrough = true
+            case .nonCandidatePanelKeyReceived:
+                handled = inputMethodContext.candidateNonPanelKeyReceived(
+                    &candidateServiceRef, &key, &readingTextRef, &composingTextRef,
+                    &loaderServiceRef)
+                candidatePanelFallThrough = true
+            case .invalid:
+                OVModuleManager.default.loaderService.pointee.beep()
+            @unknown default:
+                print("")
             }
         }
 
+        if !candidatePanelFallThrough {
+            if associatedPhrasesContextInUse {
+                handled =
+                    associatedPhrasesContext?.handleKey(
+                        &key, &readingTextRef, &composingTextRef, &candidateServiceRef,
+                        &loaderServiceRef) == true
+            }
+            if handled {
+                associatedPhrasesContextInUse = true
+            } else {
+                associatedPhrasesContextInUse = false
+                handled = inputMethodContext.handleKey(
+                    &key, &readingTextRef, &composingTextRef, &candidateServiceRef,
+                    &loaderServiceRef)
+            }
+        }
 
-        return false
+        if composingText.isCommitted() {
+            let commitText = composingText.composedCommittedText()
 
+            // Toggling menu item does not deactive the current session, so the context may still exist after it's disabled, and hence the extra check with the preferences.
+            if var associatedPhrasesContext,
+                OVModuleManager.default.associatedPhrasesAroundFilterEnabled
+            {
+                let tempReading = OpenVanilla.OVTextBufferImpl()
+                var tempReadingCast = unsafeBitCast(tempReading, to: OpenVanilla.OVTextBuffer.self)
+                var tempComposing = OpenVanilla.OVTextBufferImpl()
+                var tempComposingCast = unsafeBitCast(
+                    tempComposing, to: OpenVanilla.OVTextBuffer.self)
+
+                associatedPhrasesContextInUse = associatedPhrasesContext.handleDirectText(
+                    commitText, &tempReadingCast, &tempComposingCast, &candidateServiceRef,
+                    &loaderServiceRef)
+
+                if tempComposing.isCommitted() {
+                    composingText.finishCommit()
+                    composingText.setText(tempComposing.composedCommittedText())
+                    composingText.commit()
+                }
+
+            }
+            commitComposition(client)
+            composingText.finishCommit()
+        }
+
+        updateClientComposingBuffer(client)
+        return handled
+    }
+
+    //MARK: Notification
+
+    @objc func handleInputMethodChange(_ notification: Notification) {
+        composingText.clear()
+        readingText.clear()
+
+        if var inputMethodContext {
+            let service = OVModuleManager.default.loaderService.pointee
+            var loaderService: OpenVanilla.OVLoaderService = unsafeBitCast(
+                service, to: OpenVanilla.OVLoaderService.self)
+            inputMethodContext.stopSession(&loaderService)
+            OVModuleManager.default.delete(&inputMethodContext)
+            self.inputMethodContext = nil
+        }
+
+        let emptyReading = NSAttributedString(string: "")
+        currentClient?.setMarkedText(
+            emptyReading, selectionRange: NSMakeRange(0, 0),
+            replacementRange: NSMakeRange(NSNotFound, NSNotFound))
+        composingText.commit()
+        commitComposition(currentClient)
+        composingText.clear()
+        readingText.clear()
+        OVModuleManager.default.candidateService.pointee.resetAll()
+        OVModuleManager.default.toolTipWindowController.window?.orderOut(self)
+
+        if inputMethodContext == nil {
+            inputMethodContext =
+                OVModuleManager.default.activeInputMethod.pointee.createContext()?.pointee
+        }
+        if var inputMethodContext {
+            let service = OVModuleManager.default.loaderService.pointee
+            var loaderService: OpenVanilla.OVLoaderService = unsafeBitCast(
+                service, to: OpenVanilla.OVLoaderService.self)
+            inputMethodContext.startSession(&loaderService)
+            if let activeInputMethod = OVModuleManager.default.activeInputMethodIdentifier
+                as? String
+            {
+                let keyboardLayout = OVModuleManager.default.alphanumericKeyboardLayout(
+                    forInputMethod: activeInputMethod)
+                currentClient?.overrideKeyboard(withKeyboardNamed: keyboardLayout)
+            }
+
+        }
+    }
+
+    @objc func handleCandidateSelected(_ notification: Notification) {
+        guard var inputMethodContext else {
+            return
+        }
+        let dict = notification.userInfo ?? [:]
+        guard
+            let candidate = dict[OVOneDimensionalCandidatePanelImplSelectedCandidateStringKey]
+                as? String
+        else {
+            return
+        }
+        let index =
+            (dict[OVOneDimensionalCandidatePanelImplSelectedCandidateIndexKey] as? NSNumber)?
+            .uintValue ?? 0
+
+        var candidateServiceRef = unsafeBitCast(
+            OVModuleManager.default.candidateService.pointee,
+            to: OpenVanilla.OVCandidateService.self)
+        var loaderServiceRef = unsafeBitCast(
+            OVModuleManager.default.loaderService.pointee, to: OpenVanilla.OVLoaderService.self)
+        var readingTextRef = unsafeBitCast(readingText, to: OpenVanilla.OVTextBuffer.self)
+        var composingTextRef = unsafeBitCast(composingText, to: OpenVanilla.OVTextBuffer.self)
+
+        var handled = false
+
+        if associatedPhrasesContextInUse {
+            handled =
+                associatedPhrasesContext?.candidateSelected(
+                    &candidateServiceRef, std.string(candidate), Int(index), &readingTextRef,
+                    &composingTextRef, &loaderServiceRef) ?? false
+            associatedPhrasesContextInUse = false
+        } else {
+            handled = inputMethodContext.candidateSelected(
+                &candidateServiceRef, std.string(candidate), Int(index), &readingTextRef,
+                &composingTextRef, &loaderServiceRef)
+        }
+
+        let panel = OVModuleManager.default.candidatePanel
+
+        if handled {
+            panel?.pointee.hide()
+            panel?.pointee.cancelEventHandler()
+        } else {
+            OVModuleManager.default.loaderService.pointee.beep()
+        }
+
+        if composingText.isCommitted() {
+            commitComposition(currentClient)
+            composingText.finishCommit()
+        }
+
+        updateClientComposingBuffer(currentClient)
+    }
+
+    @objc func updateClientComposingBuffer(_ client: Any?) {
+        guard let client = client as? IMKTextInput else {
+            return
+        }
+
+        var combinedText = OpenVanilla.OVTextBufferCombinator(&composingText, &readingText)
+        guard let attrString = combinedText.combinedAttributedString() else {
+            return
+        }
+        let selectionRange = combinedText.selectionRange()
+
+        if composingText.shouldUpdate() || readingText.shouldUpdate() {
+            client.setMarkedText(
+                attrString, selectionRange: selectionRange,
+                replacementRange: NSMakeRange(NSNotFound, NSNotFound))
+            composingText.finishUpdate()
+            readingText.finishUpdate()
+        }
+
+        let params: [Any] = [client, attrString, NSValue(range: selectionRange)]
+        // If the sender is Chrome, use a 1/20 sec delay. This is likely because some
+        // internally async updates need to catch up. This is considered a hack, not a
+        // real solution. Please see these two long-standing bugs below, which also
+        // affect Google Japanese Input on Mac as well as Apple's built-in Pinyin IME:
+        // https://bugs.chromium.org/p/chromium/issues/detail?id=86460
+        // https://bugs.chromium.org/p/chromium/issues/detail?id=580808
+        if client.bundleIdentifier() == "com.google.Chrome" {
+            perform(
+                #selector(deferredUpdateClientComposingBuffer(_:)), with: params, afterDelay: 0.0
+            )
+        } else {
+            deferredUpdateClientComposingBuffer(params)
+        }
+    }
+
+    @objc func deferredUpdateClientComposingBuffer(_ params: [Any]) {
+        guard let client = params[0] as? IMKTextInput,
+            let attrString = params[1] as? NSAttributedString,
+            let selectionRange = (params[2] as? NSValue)?.rangeValue
+        else {
+            return
+        }
+        var cursorIndex = selectionRange.location
+        if cursorIndex == attrString.length && cursorIndex > 0 {
+            cursorIndex -= 1
+        }
+        var lineHeightRect = NSMakeRect(0.0, 0.0, 16.0, 16.0)
+        let attr = client.attributes(
+            forCharacterIndex: cursorIndex, lineHeightRectangle: &lineHeightRect)
+        if attr == nil || attr?.count == 0 {
+            client.attributes(forCharacterIndex: 0, lineHeightRectangle: &lineHeightRect)
+        }
+        let currentCandidatePanel = OVModuleManager.default.candidatePanel
+        currentCandidatePanel?.pointee.setPanelOrigin(
+            lineHeightRect.origin, lineHeightRect.size.height + 4.0)
+        currentCandidatePanel?.pointee.updateDisplay()
+        var toolTipText = readingText.toolTipText()
+        if toolTipText.count == 0 {
+            toolTipText = composingText.toolTipText()
+        }
+
+        if toolTipText.count > 0 {
+            var toolTipOrigin = lineHeightRect.origin
+            //            var fromTopLeft = true
+            if currentCandidatePanel?.pointee.isVisible() == true {
+                toolTipOrigin.y += lineHeightRect.size.height + 4.0
+                //                fromTopLeft = false
+            }
+            let toolTipWindowController = OVModuleManager.default.toolTipWindowController
+            (toolTipWindowController as? TooltipController)?.show(
+                tooltip: String(toolTipText), at: toolTipOrigin)
+            toolTipWindowController.window?.orderFront(self)
+        }
     }
 
 }

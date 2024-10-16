@@ -82,9 +82,9 @@ namespace OpenVanilla {
 @property (assign, readonly) OpenVanilla::OVCandidateServiceImpl* candidateService;
 
 /// Simply another reference to loaderService for Swift/C++ interop.
-@property (assign, readonly) OpenVanilla::OVLoaderService* loaderServiceRef;
+//@property (assign, readonly) OpenVanilla::OVLoaderService* loaderServiceRef;
 /// Simply another reference to candidateService for Swift/C++ interop.
-@property (assign, readonly) OpenVanilla::OVCandidateService* candidateServiceRef;
+//@property (assign, readonly) OpenVanilla::OVCandidateService* candidateServiceRef;
 
 @property (assign, readonly, nullable) OpenVanilla::OVOneDimensionalCandidatePanelImpl* candidatePanel;
 

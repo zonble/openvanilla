@@ -1,5 +1,5 @@
 //
-// OVKeyMapping.h
+// OVOneDimensionalCandidatePanelStatusMapper.h
 //
 // Copyright (c) 2004-2012 Lukhnos Liu (lukhnos at openvanilla dot org)
 //
@@ -26,14 +26,22 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <Cocoa/Cocoa.h>
-#import "OpenVanilla.h"
+#import "OVOneDimensionalCandidatePanelImpl.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface OVKeyMapping : NSObject
+using namespace OpenVanilla;
 
-+ (UniChar)remapCode:(UniChar)code NS_SWIFT_NAME(remap(code:));
+typedef NS_ENUM(NSUInteger, OVOneDimensionalCandidatePanelKeyHandlerResult) {
+    OVOneDimensionalCandidatePanelKeyHandlerResultHandled,
+    OVOneDimensionalCandidatePanelKeyHandlerResultCandidateSelected,
+    OVOneDimensionalCandidatePanelKeyHandlerResultCanceled,
+    OVOneDimensionalCandidatePanelKeyHandlerResultNonCandidatePanelKeyReceived,
+    OVOneDimensionalCandidatePanelKeyHandlerResultInvalid
+};
+
+@interface OVOneDimensionalCandidatePanelResultMapping : NSObject
++ (OVOneDimensionalCandidatePanelKeyHandlerResult)remapResult:(OVOneDimensionalCandidatePanelImpl::KeyHandlerResult)result NS_SWIFT_NAME(remap(status:));
 
 @end
 

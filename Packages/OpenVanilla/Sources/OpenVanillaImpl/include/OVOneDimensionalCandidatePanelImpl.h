@@ -28,8 +28,6 @@
 #import "OVCandidateService.h"
 #import "OVCandidateListImpl.h"
 
-//@import CandidateUI;
-
 extern NSString *const OVOneDimensionalCandidatePanelImplDidSelectCandidateNotification;
 extern NSString *const OVOneDimensionalCandidatePanelImplSelectedCandidateIndexKey;
 extern NSString *const OVOneDimensionalCandidatePanelImplSelectedCandidateStringKey;
@@ -58,7 +56,8 @@ namespace OpenVanilla {
         virtual bool isVertical() const;
     
         virtual OVCandidateList* candidateList();
-    
+        virtual string candidate() const;
+
         virtual size_t candidatesPerPage() const;
         virtual void setCandidatesPerPage(size_t number);
         virtual size_t pageCount() const;

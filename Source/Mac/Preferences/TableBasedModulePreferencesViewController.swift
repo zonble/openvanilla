@@ -83,8 +83,9 @@ class TableBasedModulePreferencesViewController: BaseModulePreferencesViewContro
             unsignedIntegerValue(forKey: "UseSpaceAsFirstCandidateSelectionKey") ?? 0
 
         if useSpaceAsFirstCandidateSelectionKey != 0 {
-            fieldUseSpaceAsFirstCandidateSelectionKey.selectCell(withTag: Int(
-                useSpaceAsFirstCandidateSelectionKey))
+            fieldUseSpaceAsFirstCandidateSelectionKey.selectCell(
+                withTag: Int(
+                    useSpaceAsFirstCandidateSelectionKey))
             fieldSendFirstCandidateWithSpaceWithOnePageList.state = .off
         } else if boolValue(forKey: "SendFirstCandidateWithSpaceWithOnePageList") {
             fieldUseSpaceAsFirstCandidateSelectionKey.selectCell(withTag: 0)
