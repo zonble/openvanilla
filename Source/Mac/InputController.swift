@@ -125,7 +125,7 @@ class InputController: IMKInputController {
 
         startOrStopAssociatedPhrasesContext()
         currentClient = client
-        // TODO: Notification
+        NotificationCenter.default.addObserver(self, selector: #selector(handleCandidateSelected(_:)), name: NSNotification.Name.OVOneDimensionalCandidatePanelImplDidSelectCandidate, object: nil)
 
         if UserDefaults.standard.bool(forKey: OVCheckForUpdateKey) {
             UpdateChecker.shared.checkForUpdateIfNeeded()
