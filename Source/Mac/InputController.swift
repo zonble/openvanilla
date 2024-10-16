@@ -28,12 +28,6 @@ class InputController: IMKInputController {
         NotificationCenter.default.addObserver(self, selector: #selector(handleInputMethodChange(_:)), name: NSNotification.Name.OVModuleManagerDidUpdateActiveInputMethod, object: OVModuleManager.default)
     }
 
-    func startOrStopAssociatedPhrasesContext() {
-    }
-
-    func stopAssociatedPhrasesContext() {
-    }
-
     //MARK: - IMKStateSetting protocol methods
 
     override func activateServer(_ client: Any!) {
@@ -332,7 +326,7 @@ class InputController: IMKInputController {
         return handled
     }
 
-    //MARK: Notification
+    //MARK: - Notification
 
     @objc func handleInputMethodChange(_ notification: Notification) {
         composingText.clear()
@@ -505,6 +499,32 @@ class InputController: IMKInputController {
                 tooltip: String(toolTipText), at: toolTipOrigin)
             toolTipWindowController.window?.orderFront(self)
         }
+    }
+
+    //MARK: - Actions
+
+    @IBAction func changeInputMethodAction(_ sender: Any) {
+    }
+
+    @IBAction func toggleTraditionalToSimplifiedChineseFilterAction(_ sender: Any) {
+    }
+
+    @IBAction func toggleSimplifiedToTraditionalChineseFilterAction(_ sender: Any) {
+    }
+
+    @IBAction func toggleAssociatedPhrasesAroundFilterEnabledAction(_ sender: Any) {
+    }
+
+    @IBAction func openUserGuideAction(_ sender: Any) {
+    }
+
+    @IBAction func showAboutAction(_ sender: Any) {
+    }
+
+    func startOrStopAssociatedPhrasesContext() {
+    }
+
+    func stopAssociatedPhrasesContext() {
     }
 
 }
