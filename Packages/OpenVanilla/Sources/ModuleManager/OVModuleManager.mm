@@ -110,7 +110,8 @@ static string InputMethodConfigIdentifier(const string &identifier) {
         _currentLocale = @"en";
 
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleLocaleChangeNotification:) name:NSCurrentLocaleDidChangeNotification object:nil];
-        _loaderService->setCurrentLocale(_currentLocale.UTF8String);
+        OpenVanilla::OVLoaderServiceImpl* loaderServiceImpl = dynamic_cast<OpenVanilla::OVLoaderServiceImpl*>(_loaderService);
+        loaderServiceImpl->setCurrentLocale(_currentLocale.UTF8String);
 
         // populate default settings; input method identifier and font name can take care of themselves
 
@@ -553,6 +554,11 @@ static string InputMethodConfigIdentifier(const string &identifier) {
     return input;
 }
 
+- (void)deleteContext:(OpenVanilla::OVEventHandlingContext *)context
+{
+    delete context;
+}
+
 #pragma mark - Properties
 
 - (NSString *)activeInputMethodIdentifier
@@ -623,6 +629,15 @@ static string InputMethodConfigIdentifier(const string &identifier) {
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
+- (OpenVanilla::OVLoaderService *)loaderServiceRef
+{
+    return _loaderService;
+}
+
+- (OpenVanilla::OVCandidateService*)candidateServiceRef {
+    return _candidateService;
+}
+
 #pragma mark - Private Methods
 
 - (NSString *)rootPathForCustomInputMethodTables
@@ -670,7 +685,8 @@ static string InputMethodConfigIdentifier(const string &identifier) {
 
     if (tags.count) {
         self.currentLocale = tags[0];
-        _loaderService->setCurrentLocale(self.currentLocale.UTF8String);
+        OpenVanilla::OVLoaderServiceImpl* loaderServiceImpl = dynamic_cast<OpenVanilla::OVLoaderServiceImpl*>(_loaderService);
+        loaderServiceImpl->setCurrentLocale(_currentLocale.UTF8String);
     }
 }
 @end

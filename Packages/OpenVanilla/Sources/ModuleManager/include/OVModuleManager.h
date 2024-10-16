@@ -25,7 +25,9 @@
 // OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#import <Foundation/Foundation.h>
+
+@import Foundation;
+@import Cocoa;
 #import <map>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -43,13 +45,15 @@ NS_ASSUME_NONNULL_BEGIN
 @property (readonly, strong) NSError *error;
 @end
 
-@class OVToolTipWindowController;
 
 namespace OpenVanilla {
+    class OVLoaderService;
+    class OVCandidateService;
     class OVLoaderServiceImpl;
     class OVCandidateServiceImpl;
     class OVInputMethod;
     class OVAroundFilter;
+    class OVEventHandlingContext;
     typedef std::map<std::string, OVInputMethod *> OVInputMethodMap;
 };
 
@@ -69,12 +73,19 @@ namespace OpenVanilla {
 - (BOOL)removeCustomTableBasedInputMethod:(NSString *)identifier error:(NSError **)error;
 
 - (NSString *)filteredStringWithString:(NSString *)input;
+- (void)deleteContext:(OpenVanilla::OVEventHandlingContext *)context;
 
 @property (class, readonly) OVModuleManager *defaultManager;
 
 @property (assign, readonly) OpenVanilla::OVLoaderServiceImpl* loaderService;
 @property (assign, readonly) OpenVanilla::OVCandidateServiceImpl* candidateService;
-@property (strong) OVToolTipWindowController *toolTipWindowController;
+
+/// Simply another reference to loaderService for Swift/C++ interop.
+@property (assign, readonly) OpenVanilla::OVLoaderService* loaderServiceRef;
+/// Simply another reference to candidateService for Swift/C++ interop.
+@property (assign, readonly) OpenVanilla::OVCandidateService* candidateServiceRef;
+
+@property (strong) NSWindowController *toolTipWindowController;
 
 @property (assign, readonly) OpenVanilla::OVInputMethod* activeInputMethod;
 @property (weak, readonly) NSString *activeInputMethodIdentifier;

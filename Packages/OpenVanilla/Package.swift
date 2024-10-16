@@ -54,7 +54,9 @@ let package = Package(
                 .unsafeFlags(["-Wno-incomplete-umbrella"], .when(configuration: .release)),
                 .unsafeFlags(["-Wno-incomplete-umbrella"], .when(configuration: .debug))
             ],
-            cxxSettings: [.unsafeFlags(["-fcxx-modules", "-fmodules"])]
+            cxxSettings: [
+//                .headerSearchPath("$(TARGET_TEMP_DIR)/swift_include"),
+                .unsafeFlags(["-fcxx-modules", "-fmodules"])]
         ),
         .target(
             name: "LegacyOpenVanilla",

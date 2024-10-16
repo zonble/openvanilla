@@ -620,8 +620,9 @@ using namespace OpenVanilla;
             fromTopLeft = NO;
         }
 
-        [[OVModuleManager defaultManager].toolTipWindowController showTooltip:@(toolTipText.c_str()) atPoint:toolTipOrigin];
-        [[OVModuleManager defaultManager].toolTipWindowController.window orderFront:self];
+        OVToolTipWindowController* toolTipWindowController = (OVToolTipWindowController*)[OVModuleManager defaultManager].toolTipWindowController;
+        [toolTipWindowController showTooltip:@(toolTipText.c_str()) atPoint:toolTipOrigin];
+        [toolTipWindowController.window orderFront:self];
     }
 }
 
