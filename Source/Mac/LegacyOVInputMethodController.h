@@ -28,5 +28,5 @@
 
 @import InputMethodKit;
 
-@interface OVInputMethodController : IMKInputController
+@interface LegacyOVInputMethodController : IMKInputController
 @end

@@ -5,6 +5,7 @@ import ModuleManager
 import OpenVanillaImpl
 import TooltipUI
 
+@objc(OVInputMethodController)
 class InputController: IMKInputController {
     fileprivate var composingText = OpenVanilla.OVTextBufferImpl()
     fileprivate var readingText = OpenVanilla.OVTextBufferImpl()
@@ -25,7 +26,77 @@ class InputController: IMKInputController {
 
     override init!(server: IMKServer!, delegate: Any!, client inputClient: Any!) {
         super.init(server: server, delegate: delegate, client: inputClient)
-        NotificationCenter.default.addObserver(self, selector: #selector(handleInputMethodChange(_:)), name: NSNotification.Name.OVModuleManagerDidUpdateActiveInputMethod, object: OVModuleManager.default)
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(handleInputMethodChange(_:)),
+            name: NSNotification.Name.OVModuleManagerDidUpdateActiveInputMethod,
+            object: OVModuleManager.default)
+    }
+
+    override func menu() -> NSMenu {
+        let menu = NSMenu()
+        let activeInputMethodIdentifier = OVModuleManager.default.activeInputMethodIdentifier
+        let inputMethodIdentifiers = OVModuleManager.default.inputMethodIdentifiers
+        for identifier in inputMethodIdentifiers {
+            let item = NSMenuItem()
+            item.title = OVModuleManager.default.localizedInputMethodName(identifier)
+            item.representedObject = identifier
+            item.target = self
+            item.action = #selector(changeInputMethodAction(_:))
+            if let activeInputMethodIdentifier = activeInputMethodIdentifier as? String,
+                activeInputMethodIdentifier == identifier
+            {
+                item.state = .on
+            }
+            menu.addItem(item)
+        }
+
+        let tc2scItem = NSMenuItem(
+            title: NSLocalizedString("Convert Traditional Chinese to Simplified", comment: ""),
+            action: #selector(toggleTraditionalToSimplifiedChineseFilterAction(_:)),
+            keyEquivalent: "g")
+        tc2scItem.keyEquivalentModifierMask = [.command, .control]
+        tc2scItem.state =
+            OVModuleManager.default.traditionalToSimplifiedChineseFilterEnabled ? .on : .off
+        menu.addItem(tc2scItem)
+
+        let sc2tcItem = NSMenuItem(
+            title: NSLocalizedString("Convert Simplified Chinese to Traditional", comment: ""),
+            action: #selector(toggleSimplifiedToTraditionalChineseFilterAction(_:)),
+            keyEquivalent: "")
+        sc2tcItem.state =
+            OVModuleManager.default.simplifiedToTraditionalChineseFilterEnabled ? .on : .off
+        menu.addItem(sc2tcItem)
+
+        let assocatedPhrasesItem = NSMenuItem(
+            title: NSLocalizedString("Associated Phrases", comment: ""),
+            action: #selector(toggleAssociatedPhrasesAroundFilterEnabledAction(_:)),
+            keyEquivalent: "")
+        assocatedPhrasesItem.state =
+            OVModuleManager.default.associatedPhrasesAroundFilterEnabled ? .on : .off
+        menu.addItem(assocatedPhrasesItem)
+
+        menu.addItem(NSMenuItem.separator())
+
+        let preferenceMenuItem = NSMenuItem(
+            title: NSLocalizedString("OpenVanilla Preferences…", comment: ""),
+            action: #selector(showPreferences(_:)),
+            keyEquivalent: "")
+        menu.addItem(preferenceMenuItem)
+
+        let userManualItem = NSMenuItem(
+            title: NSLocalizedString("User Guide", comment: ""),
+            action: #selector(openUserGuideAction(_:)),
+            keyEquivalent: "")
+        menu.addItem(userManualItem)
+
+        let aboutMenuItem = NSMenuItem(
+            title: NSLocalizedString("About OpenVanilla", comment: ""),
+            action: #selector(showAboutAction(_:)),
+            keyEquivalent: "")
+        menu.addItem(aboutMenuItem)
+
+        return menu
+
     }
 
     //MARK: - IMKStateSetting protocol methods
@@ -47,9 +118,8 @@ class InputController: IMKInputController {
                 OVModuleManager.default.activeInputMethod.pointee.createContext()?.pointee
         }
         if var inputMethodContext {
-            let service = OVModuleManager.default.loaderService.pointee
-            var loaderService: OpenVanilla.OVLoaderService = unsafeBitCast(
-                service, to: OpenVanilla.OVLoaderService.self)
+            var loaderService = unsafeBitCast(
+                OVModuleManager.default.loaderService.pointee, to: OpenVanilla.OVLoaderService.self)
             inputMethodContext.startSession(&loaderService)
         }
 
@@ -68,9 +138,8 @@ class InputController: IMKInputController {
         }
 
         if var inputMethodContext {
-            let service = OVModuleManager.default.loaderService.pointee
-            var loaderService: OpenVanilla.OVLoaderService = unsafeBitCast(
-                service, to: OpenVanilla.OVLoaderService.self)
+            var loaderService = unsafeBitCast(
+                OVModuleManager.default.loaderService.pointee, to: OpenVanilla.OVLoaderService.self)
             inputMethodContext.stopSession(&loaderService)
             OVModuleManager.default.delete(&inputMethodContext)
             self.inputMethodContext = nil
@@ -334,7 +403,7 @@ class InputController: IMKInputController {
 
         if var inputMethodContext {
             let service = OVModuleManager.default.loaderService.pointee
-            var loaderService: OpenVanilla.OVLoaderService = unsafeBitCast(
+            var loaderService = unsafeBitCast(
                 service, to: OpenVanilla.OVLoaderService.self)
             inputMethodContext.stopSession(&loaderService)
             OVModuleManager.default.delete(&inputMethodContext)
@@ -358,7 +427,7 @@ class InputController: IMKInputController {
         }
         if var inputMethodContext {
             let service = OVModuleManager.default.loaderService.pointee
-            var loaderService: OpenVanilla.OVLoaderService = unsafeBitCast(
+            var loaderService = unsafeBitCast(
                 service, to: OpenVanilla.OVLoaderService.self)
             inputMethodContext.startSession(&loaderService)
             if let activeInputMethod = OVModuleManager.default.activeInputMethodIdentifier
@@ -503,28 +572,79 @@ class InputController: IMKInputController {
 
     //MARK: - Actions
 
-    @IBAction func changeInputMethodAction(_ sender: Any) {
+    @IBAction func changeInputMethodAction(_ sender: NSObject) {
+        guard let item = sender.value(forKey: kIMKCommandMenuItemName) as? NSMenuItem,
+            let identifier = item.representedObject as? String
+        else {
+            return
+        }
+        OVModuleManager.default.selectInputMethod(identifier)
     }
 
     @IBAction func toggleTraditionalToSimplifiedChineseFilterAction(_ sender: Any) {
+        let manager = OVModuleManager.default
+        manager.traditionalToSimplifiedChineseFilterEnabled = !manager
+            .traditionalToSimplifiedChineseFilterEnabled
+        manager.simplifiedToTraditionalChineseFilterEnabled = false
     }
 
     @IBAction func toggleSimplifiedToTraditionalChineseFilterAction(_ sender: Any) {
+        let manager = OVModuleManager.default
+        manager.simplifiedToTraditionalChineseFilterEnabled = !manager
+            .simplifiedToTraditionalChineseFilterEnabled
+        manager.traditionalToSimplifiedChineseFilterEnabled = false
     }
 
     @IBAction func toggleAssociatedPhrasesAroundFilterEnabledAction(_ sender: Any) {
+        let manager = OVModuleManager.default
+        manager.associatedPhrasesAroundFilterEnabled = !manager.associatedPhrasesAroundFilterEnabled
+        startOrStopAssociatedPhrasesContext()
     }
 
     @IBAction func openUserGuideAction(_ sender: Any) {
+        if let url = URL(string: OVUserGuideURLString) {
+            NSWorkspace.shared.open(url)
+        }
     }
 
     @IBAction func showAboutAction(_ sender: Any) {
+        NSApplication.shared.orderFrontStandardAboutPanel(sender)
+        if #available(macOS 14.0, *) {
+            NSApplication.shared.activate()
+        } else {
+            NSApplication.shared.activate(ignoringOtherApps: true)
+        }
     }
 
     func startOrStopAssociatedPhrasesContext() {
+        if associatedPhrasesContext == nil
+            && OVModuleManager.default.associatedPhrasesAroundFilterEnabled
+        {
+            associatedPhrasesContext =
+                OVModuleManager.default.associatedPhrasesModule.pointee.createContext()?.pointee
+            let service = OVModuleManager.default.loaderService.pointee
+            var loaderService = unsafeBitCast(
+                service, to: OpenVanilla.OVLoaderService.self)
+            associatedPhrasesContext?.startSession(&loaderService)
+        } else if associatedPhrasesContext != nil
+            && !OVModuleManager.default.associatedPhrasesAroundFilterEnabled
+        {
+            stopAssociatedPhrasesContext()
+        }
+
+        associatedPhrasesContextInUse = false
     }
 
     func stopAssociatedPhrasesContext() {
+        guard var associatedPhrasesContext else {
+            return
+        }
+        var loaderService = unsafeBitCast(
+            OVModuleManager.default.loaderService.pointee, to: OpenVanilla.OVLoaderService.self)
+        associatedPhrasesContext.stopSession(&loaderService)
+        OVModuleManager.default.delete(&associatedPhrasesContext)
+        self.associatedPhrasesContext = nil
+        associatedPhrasesContextInUse = false
     }
 
 }

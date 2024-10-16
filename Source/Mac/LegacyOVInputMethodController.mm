@@ -25,7 +25,7 @@
 // OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#import "OVInputMethodController.h"
+#import "LegacyOVInputMethodController.h"
 #import "OpenVanilla-Swift.h"
 
 @import OpenVanilla;
@@ -36,7 +36,7 @@
 
 using namespace OpenVanilla;
 
-@interface OVInputMethodController ()
+@interface LegacyOVInputMethodController ()
 {
 @protected
     OVTextBufferImpl *_composingText;
@@ -58,7 +58,7 @@ using namespace OpenVanilla;
 - (void)showAboutAction:(id)sender;
 @end
 
-@implementation OVInputMethodController
+@implementation LegacyOVInputMethodController
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
