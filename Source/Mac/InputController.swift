@@ -113,9 +113,7 @@ class InputController: IMKInputController {
                 OVModuleManager.default.activeInputMethod.pointee.createContext()
         }
 
-        var loaderService = unsafeBitCast(
-            OVModuleManager.default.loaderService.pointee,
-            to: OpenVanilla.OVLoaderService.self)
+        var loaderService = OVModuleManager.default.loaderService.pointee.toSuperClass().pointee
         inputMethodContext?.pointee.startSession(&loaderService)
 
         startOrStopAssociatedPhrasesContext()
@@ -135,11 +133,12 @@ class InputController: IMKInputController {
             return
         }
 
-        var loaderService = unsafeBitCast(
-            OVModuleManager.default.loaderService.pointee, to: OpenVanilla.OVLoaderService.self)
+        var loaderService = OVModuleManager.default.loaderService.pointee.toSuperClass().pointee
         inputMethodContext?.pointee.stopSession(&loaderService)
-        // OVModuleManager.default.delete(&inputMethodContext)
-        self.inputMethodContext = nil
+        if let inputMethodContext = inputMethodContext {
+            OVModuleManager.default.delete(inputMethodContext)
+            self.inputMethodContext = nil
+        }
         stopAssociatedPhrasesContext()
 
         if readingText.isEmpty() == false {
@@ -303,8 +302,7 @@ class InputController: IMKInputController {
         var candidateServiceRef = unsafeBitCast(
             OVModuleManager.default.candidateService.pointee,
             to: OpenVanilla.OVCandidateService.self)
-        var loaderServiceRef = unsafeBitCast(
-            OVModuleManager.default.loaderService.pointee, to: OpenVanilla.OVLoaderService.self)
+        var loaderServiceRef = OVModuleManager.default.loaderService.pointee.toSuperClass().pointee
         var readingTextRef = unsafeBitCast(readingText, to: OpenVanilla.OVTextBuffer.self)
         var composingTextRef = unsafeBitCast(composingText, to: OpenVanilla.OVTextBuffer.self)
 
@@ -396,8 +394,7 @@ class InputController: IMKInputController {
         composingText.clear()
         readingText.clear()
 
-        var loaderService = unsafeBitCast(
-            OVModuleManager.default.loaderService.pointee, to: OpenVanilla.OVLoaderService.self)
+        var loaderService = OVModuleManager.default.loaderService.pointee.toSuperClass().pointee
         inputMethodContext?.pointee.stopSession(&loaderService)
         self.inputMethodContext = nil
 
@@ -441,8 +438,7 @@ class InputController: IMKInputController {
         var candidateServiceRef = unsafeBitCast(
             OVModuleManager.default.candidateService.pointee,
             to: OpenVanilla.OVCandidateService.self)
-        var loaderServiceRef = unsafeBitCast(
-            OVModuleManager.default.loaderService.pointee, to: OpenVanilla.OVLoaderService.self)
+        var loaderServiceRef = OVModuleManager.default.loaderService.pointee.toSuperClass().pointee
         var readingTextRef = unsafeBitCast(readingText, to: OpenVanilla.OVTextBuffer.self)
         var composingTextRef = unsafeBitCast(composingText, to: OpenVanilla.OVTextBuffer.self)
 
@@ -604,8 +600,7 @@ class InputController: IMKInputController {
         {
             associatedPhrasesContext =
                 OVModuleManager.default.associatedPhrasesModule.pointee.createContext()
-            var loaderService = unsafeBitCast(
-                OVModuleManager.default.loaderService.pointee, to: OpenVanilla.OVLoaderService.self)
+            var loaderService = OVModuleManager.default.loaderService.pointee.toSuperClass().pointee
             associatedPhrasesContext?.pointee.startSession(&loaderService)
         } else if associatedPhrasesContext != nil
             && !OVModuleManager.default.associatedPhrasesAroundFilterEnabled
@@ -617,8 +612,7 @@ class InputController: IMKInputController {
     }
 
     func stopAssociatedPhrasesContext() {
-        var loaderService = unsafeBitCast(
-            OVModuleManager.default.loaderService.pointee, to: OpenVanilla.OVLoaderService.self)
+        var loaderService = OVModuleManager.default.loaderService.pointee.toSuperClass().pointee
         associatedPhrasesContext?.pointee.stopSession(&loaderService)
         self.associatedPhrasesContext = nil
         associatedPhrasesContextInUse = false

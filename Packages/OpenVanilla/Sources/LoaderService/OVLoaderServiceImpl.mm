@@ -59,6 +59,12 @@ ostream& OVLoaderServiceImpl::logger(const string& sectionName)
     return cerr;
 }
 
-void OVLoaderServiceImpl::setCurrentLocale(string locale) {
+void OVLoaderServiceImpl::setCurrentLocale(string locale)
+{
     currentLocale = locale;
+}
+
+OVLoaderService* OVLoaderServiceImpl::toSuperClass()
+{
+    return dynamic_cast<OVLoaderService*>(this);
 }
