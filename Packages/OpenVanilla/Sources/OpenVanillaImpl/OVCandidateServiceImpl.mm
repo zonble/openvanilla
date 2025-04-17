@@ -75,3 +75,8 @@ void OVCandidateServiceImpl::applyFontSettings(NSString *fontName, NSUInteger fo
     m_verticalCandidatePanel.applyFontSettings(fontName, fontSize);
 }
 
+//OVCandidateService * OVCandidateServiceImpl::toSuperClass()
+//{
+//    return dynamic_cast<OVCandidateService*>(this);
+//}
+

@@ -631,12 +631,12 @@ static string InputMethodConfigIdentifier(const string &identifier) {
 
 - (OpenVanilla::OVLoaderService *)loaderServiceRef
 {
-    return _loaderService;
+    return dynamic_cast<OpenVanilla::OVLoaderService *>(_loaderService);
 }
 
-- (OpenVanilla::OVCandidateService*)candidateServiceRef
+- (OpenVanilla::OVCandidateService *)candidateServiceRef
 {
-    return _candidateService;
+    return dynamic_cast<OpenVanilla::OVCandidateService *>(_candidateService);
 }
 
 - (OpenVanilla::OVOneDimensionalCandidatePanelImpl*) candidatePanel

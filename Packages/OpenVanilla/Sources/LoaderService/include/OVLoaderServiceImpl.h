@@ -59,7 +59,7 @@ namespace OpenVanilla {
         virtual void* __reserved8(const string&) { return 0; }
 
         void setCurrentLocale(string locale);
-        OVLoaderService* toSuperClass();
+//        OVLoaderService* toSuperClass();
     };
 };
 

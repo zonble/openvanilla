@@ -113,8 +113,8 @@ class InputController: IMKInputController {
                 OVModuleManager.default.activeInputMethod.pointee.createContext()
         }
 
-        var loaderService = OVModuleManager.default.loaderService.pointee.toSuperClass().pointee
-        inputMethodContext?.pointee.startSession(&loaderService)
+        let loaderService = OVModuleManager.default.loaderServiceRef
+        inputMethodContext?.pointee.startSession(loaderService)
 
         startOrStopAssociatedPhrasesContext()
         currentClient = client
@@ -133,8 +133,8 @@ class InputController: IMKInputController {
             return
         }
 
-        var loaderService = OVModuleManager.default.loaderService.pointee.toSuperClass().pointee
-        inputMethodContext?.pointee.stopSession(&loaderService)
+        let loaderService = OVModuleManager.default.loaderServiceRef
+        inputMethodContext?.pointee.stopSession(loaderService)
         if let inputMethodContext = inputMethodContext {
             OVModuleManager.default.delete(inputMethodContext)
             self.inputMethodContext = nil
@@ -294,15 +294,14 @@ class InputController: IMKInputController {
                     std.string(chars), opt, opt, ctrl, shift, cmd, capsLock, numLock)
             }
         }()
-        return handle(ovKey: key, cliemt: client)
+        return handle(ovKey: key, client: client)
     }
 
-    private func handle(ovKey: OpenVanilla.OVKey, cliemt: IMKTextInput) -> Bool {
+    private func handle(ovKey: OpenVanilla.OVKey, client: IMKTextInput) -> Bool {
         var key = ovKey
-        var candidateServiceRef = unsafeBitCast(
-            OVModuleManager.default.candidateService.pointee,
-            to: OpenVanilla.OVCandidateService.self)
-        var loaderServiceRef = OVModuleManager.default.loaderService.pointee.toSuperClass().pointee
+        let loaderServiceRef = OVModuleManager.default.loaderServiceRef
+        let candidateServiceRef = OVModuleManager.default.candidateServiceRef
+
         var readingTextRef = unsafeBitCast(readingText, to: OpenVanilla.OVTextBuffer.self)
         var composingTextRef = unsafeBitCast(composingText, to: OpenVanilla.OVTextBuffer.self)
 
@@ -320,17 +319,17 @@ class InputController: IMKInputController {
                 let index = panel.currentHightlightIndexInCandidateList()
                 let candidate = panel.candidate()
                 handled = inputMethodContext?.pointee.candidateSelected(
-                    &candidateServiceRef, candidate, index, &readingTextRef, &composingTextRef,
-                    &loaderServiceRef) ?? false
+                    candidateServiceRef, candidate, index, &readingTextRef, &composingTextRef,
+                    loaderServiceRef) ?? false
             case .canceled:
                 inputMethodContext?.pointee.candidateCanceled(
-                    &candidateServiceRef, &readingTextRef, &composingTextRef, &loaderServiceRef)
+                    candidateServiceRef, &readingTextRef, &composingTextRef, loaderServiceRef)
                 handled = true
                 candidatePanelFallThrough = true
             case .nonCandidatePanelKeyReceived:
                 handled = inputMethodContext?.pointee.candidateNonPanelKeyReceived(
-                    &candidateServiceRef, &key, &readingTextRef, &composingTextRef,
-                    &loaderServiceRef) ?? false
+                    candidateServiceRef, &key, &readingTextRef, &composingTextRef,
+                    loaderServiceRef) ?? false
                 candidatePanelFallThrough = true
             case .invalid:
                 OVModuleManager.default.loaderService.pointee.beep()
@@ -343,16 +342,16 @@ class InputController: IMKInputController {
             if associatedPhrasesContextInUse {
                 handled =
                 associatedPhrasesContext?.pointee.handleKey(
-                        &key, &readingTextRef, &composingTextRef, &candidateServiceRef,
-                        &loaderServiceRef) == true
+                        &key, &readingTextRef, &composingTextRef, candidateServiceRef,
+                        loaderServiceRef) == true
             }
             if handled {
                 associatedPhrasesContextInUse = true
             } else {
                 associatedPhrasesContextInUse = false
                 handled = inputMethodContext?.pointee.handleKey(
-                    &key, &readingTextRef, &composingTextRef, &candidateServiceRef,
-                    &loaderServiceRef) ?? false
+                    &key, &readingTextRef, &composingTextRef, candidateServiceRef,
+                    loaderServiceRef) ?? false
             }
         }
 
@@ -370,8 +369,8 @@ class InputController: IMKInputController {
                     tempComposing, to: OpenVanilla.OVTextBuffer.self)
 
                 associatedPhrasesContextInUse = associatedPhrasesContext?.pointee.handleDirectText(
-                    commitText, &tempReadingCast, &tempComposingCast, &candidateServiceRef,
-                    &loaderServiceRef) ?? false
+                    commitText, &tempReadingCast, &tempComposingCast, candidateServiceRef,
+                    loaderServiceRef) ?? false
 
                 if tempComposing.isCommitted() {
                     composingText.finishCommit()
@@ -394,8 +393,8 @@ class InputController: IMKInputController {
         composingText.clear()
         readingText.clear()
 
-        var loaderService = OVModuleManager.default.loaderService.pointee.toSuperClass().pointee
-        inputMethodContext?.pointee.stopSession(&loaderService)
+        let loaderService = OVModuleManager.default.loaderServiceRef
+        inputMethodContext?.pointee.stopSession(loaderService)
         self.inputMethodContext = nil
 
         let emptyReading = NSAttributedString(string: "")
@@ -413,7 +412,7 @@ class InputController: IMKInputController {
             inputMethodContext =
                 OVModuleManager.default.activeInputMethod.pointee.createContext()
         }
-        inputMethodContext?.pointee.startSession(&loaderService)
+        inputMethodContext?.pointee.startSession(loaderService)
         if let activeInputMethod = OVModuleManager.default.activeInputMethodIdentifier
             as? String
         {
@@ -435,10 +434,8 @@ class InputController: IMKInputController {
             (dict[OVOneDimensionalCandidatePanelImplSelectedCandidateIndexKey] as? NSNumber)?
             .uintValue ?? 0
 
-        var candidateServiceRef = unsafeBitCast(
-            OVModuleManager.default.candidateService.pointee,
-            to: OpenVanilla.OVCandidateService.self)
-        var loaderServiceRef = OVModuleManager.default.loaderService.pointee.toSuperClass().pointee
+        let candidateServiceRef = OVModuleManager.default.candidateServiceRef
+        var loaderServiceRef = OVModuleManager.default.loaderServiceRef
         var readingTextRef = unsafeBitCast(readingText, to: OpenVanilla.OVTextBuffer.self)
         var composingTextRef = unsafeBitCast(composingText, to: OpenVanilla.OVTextBuffer.self)
 
@@ -447,13 +444,13 @@ class InputController: IMKInputController {
         if associatedPhrasesContextInUse {
             handled =
             associatedPhrasesContext?.pointee.candidateSelected(
-                    &candidateServiceRef, std.string(candidate), Int(index), &readingTextRef,
-                    &composingTextRef, &loaderServiceRef) ?? false
+                    candidateServiceRef, std.string(candidate), Int(index), &readingTextRef,
+                    &composingTextRef, loaderServiceRef) ?? false
             associatedPhrasesContextInUse = false
         } else {
             handled = inputMethodContext?.pointee.candidateSelected(
-                &candidateServiceRef, std.string(candidate), Int(index), &readingTextRef,
-                &composingTextRef, &loaderServiceRef) ?? false
+                candidateServiceRef, std.string(candidate), Int(index), &readingTextRef,
+                &composingTextRef, loaderServiceRef) ?? false
         }
 
         let panel = OVModuleManager.default.candidatePanel
@@ -600,8 +597,8 @@ class InputController: IMKInputController {
         {
             associatedPhrasesContext =
                 OVModuleManager.default.associatedPhrasesModule.pointee.createContext()
-            var loaderService = OVModuleManager.default.loaderService.pointee.toSuperClass().pointee
-            associatedPhrasesContext?.pointee.startSession(&loaderService)
+            let loaderService = OVModuleManager.default.loaderServiceRef
+            associatedPhrasesContext?.pointee.startSession(loaderService)
         } else if associatedPhrasesContext != nil
             && !OVModuleManager.default.associatedPhrasesAroundFilterEnabled
         {
@@ -612,8 +609,8 @@ class InputController: IMKInputController {
     }
 
     func stopAssociatedPhrasesContext() {
-        var loaderService = OVModuleManager.default.loaderService.pointee.toSuperClass().pointee
-        associatedPhrasesContext?.pointee.stopSession(&loaderService)
+        let loaderService = OVModuleManager.default.loaderServiceRef
+        associatedPhrasesContext?.pointee.stopSession(loaderService)
         self.associatedPhrasesContext = nil
         associatedPhrasesContextInUse = false
     }

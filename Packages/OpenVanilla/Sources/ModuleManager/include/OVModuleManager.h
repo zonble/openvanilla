@@ -80,6 +80,10 @@ namespace OpenVanilla {
 
 @property (assign, readonly) OpenVanilla::OVLoaderServiceImpl* loaderService;
 @property (assign, readonly) OpenVanilla::OVCandidateServiceImpl* candidateService;
+// zonble
+@property (assign, readonly) OpenVanilla::OVLoaderService* loaderServiceRef;
+@property (assign, readonly) OpenVanilla::OVCandidateService* candidateServiceRef;
+
 @property (assign, readonly, nullable) OpenVanilla::OVOneDimensionalCandidatePanelImpl* candidatePanel;
 
 
