@@ -55,6 +55,8 @@ namespace OpenVanilla {
     class OVAroundFilter;
     class OVEventHandlingContext;
     class OVOneDimensionalCandidatePanelImpl;
+    class OVTextBuffer;
+    class OVTextBufferImpl;
     typedef std::map<std::string, OVInputMethod *> OVInputMethodMap;
 };
 
@@ -80,9 +82,6 @@ namespace OpenVanilla {
 
 @property (assign, readonly) OpenVanilla::OVLoaderServiceImpl* loaderService;
 @property (assign, readonly) OpenVanilla::OVCandidateServiceImpl* candidateService;
-// zonble
-@property (assign, readonly) OpenVanilla::OVLoaderService* loaderServiceRef;
-@property (assign, readonly) OpenVanilla::OVCandidateService* candidateServiceRef;
 
 @property (assign, readonly, nullable) OpenVanilla::OVOneDimensionalCandidatePanelImpl* candidatePanel;
 
@@ -102,6 +101,12 @@ namespace OpenVanilla {
 @property (assign) BOOL fallbackToSharedAlphanumericKeyboardLayoutWhenShiftPressed;
 
 @property (assign, readonly) OpenVanilla::OVAroundFilter* associatedPhrasesModule;
+@end
+
+@interface OVModuleManager (SwiftCppBridge)
+- (OpenVanilla::OVTextBuffer *)cast:(OpenVanilla::OVTextBufferImpl *)buffer;
+@property (assign, readonly) OpenVanilla::OVLoaderService* loaderServiceRef;
+@property (assign, readonly) OpenVanilla::OVCandidateService* candidateServiceRef;
 @end
 
 extern NSString *const OVModuleManagerDidReloadNotification;

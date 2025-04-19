@@ -286,4 +286,3 @@ OVTextBuffer::RangePair OVTextBufferImpl::clampedRangePair(const OVTextBuffer::R
 
     return result;
 }
-

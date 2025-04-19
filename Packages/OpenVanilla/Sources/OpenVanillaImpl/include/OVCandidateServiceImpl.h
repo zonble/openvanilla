@@ -39,7 +39,6 @@ namespace OpenVanilla {
         virtual OVOneDimensionalCandidatePanelImpl* currentCandidatePanel();
         virtual void resetAll();
         virtual void applyFontSettings(NSString *fontName, NSUInteger fontSize);
-//        OVCandidateService *toSuperClass();
 
     protected:
         OVOneDimensionalCandidatePanelImpl m_horizontalCandidatePanel;

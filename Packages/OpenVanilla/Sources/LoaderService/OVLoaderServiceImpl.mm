@@ -64,7 +64,3 @@ void OVLoaderServiceImpl::setCurrentLocale(string locale)
     currentLocale = locale;
 }
 
-//OVLoaderService* OVLoaderServiceImpl::toSuperClass()
-//{
-//    return dynamic_cast<OVLoaderService*>(this);
-//}

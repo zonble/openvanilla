@@ -629,6 +629,11 @@ static string InputMethodConfigIdentifier(const string &identifier) {
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
+- (OpenVanilla::OVTextBuffer *)cast:(OpenVanilla::OVTextBufferImpl *)buffer
+{
+    return dynamic_cast<OpenVanilla::OVTextBuffer *>(buffer);
+}
+
 - (OpenVanilla::OVLoaderService *)loaderServiceRef
 {
     return dynamic_cast<OpenVanilla::OVLoaderService *>(_loaderService);
