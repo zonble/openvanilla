@@ -38,10 +38,10 @@ import TooltipUI
 class OVInputMethodController: IMKInputController {
     
     // C++ objects using Swift C++ interop
-    private var composingText = OVTextBufferImplCpp()
-    private var readingText = OVTextBufferImplCpp()
-    private var inputMethodContext: OVEventHandlingContextCpp?
-    private var associatedPhrasesContext: OVEventHandlingContextCpp?
+    private var composingText = OpenVanilla.OVTextBufferImpl()
+    private var readingText = OpenVanilla.OVTextBufferImpl()
+    private var inputMethodContext: OpenVanilla.OVEventHandlingContext?
+    private var associatedPhrasesContext: OpenVanilla.OVEventHandlingContext?
     private var associatedPhrasesContextInUse: Bool = false
     private weak var currentClient: (IMKTextInput & NSObjectProtocol)?
     
@@ -325,7 +325,7 @@ class OVInputMethodController: IMKInputController {
         let capsLock = modifiers.contains(.capsLock)
         let numLock = false // Simplified for now
         
-        let key: OVKeyCpp
+        let key: OpenVanilla.OVKey
         
         if let firstChar = characters.first, firstChar.isASCII {
             let keyCode = Int(firstChar.asciiValue!)
@@ -341,7 +341,7 @@ class OVInputMethodController: IMKInputController {
     
     // MARK: - Private methods
     
-    private func handleOVKey(_ key: OVKeyCpp, client: Any?) -> Bool {
+    private func handleOVKey(_ key: OpenVanilla.OVKey, client: Any?) -> Bool {
         guard let inputMethodContext = inputMethodContext else { return false }
         
         var handled = false
@@ -385,7 +385,7 @@ class OVInputMethodController: IMKInputController {
     }
     
     private func updateClientComposingBuffer(_ sender: Any?) {
-        let combinedText = OVTextBufferCombinatorCpp(composingText, readingText)
+        let combinedText = OpenVanilla.OVTextBufferCombinator(composingText, readingText)
         let attrString = combinedText.combinedAttributedString()
         let selectionRange = combinedText.selectionRange()
         
