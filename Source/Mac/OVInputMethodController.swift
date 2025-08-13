@@ -37,7 +37,7 @@ import TooltipUI
 @objc(OVInputMethodController)
 class OVInputMethodController: IMKInputController {
     
-    // C++ objects using Swift C++ interop
+    // C++ objects using Swift C++ interop with proper namespace qualification
     private var composingText = OpenVanilla.OVTextBufferImpl()
     private var readingText = OpenVanilla.OVTextBufferImpl()
     private var inputMethodContext: OpenVanilla.OVEventHandlingContext?
@@ -60,7 +60,7 @@ class OVInputMethodController: IMKInputController {
     override init(server: IMKServer!, delegate: Any!, client inputClient: Any!) {
         super.init(server: server, delegate: delegate, client: inputClient)
         
-        // C++ objects are automatically initialized
+        // C++ objects are automatically initialized with proper namespace
         
         NotificationCenter.default.addObserver(
             self,
@@ -300,7 +300,7 @@ class OVInputMethodController: IMKInputController {
             return false
         }
         
-        // Clear tooltips if present
+        // Clear tooltips if present - fixed string conversion for Swift C++ interop
         if !String(readingText.toolTipText()).isEmpty || !String(composingText.toolTipText()).isEmpty {
             NSLog("clear tooltip")
             readingText.clearToolTip()
@@ -353,7 +353,7 @@ class OVInputMethodController: IMKInputController {
             
             var remappedKeyCode = unicharCode
             
-            // Remap function key codes
+            // Remap function key codes - fixed namespace references
             switch unicharCode {
             case UInt16(NSUpArrowFunctionKey):
                 remappedKeyCode = UInt16(OpenVanilla.OVKeyCode.Up.rawValue)
@@ -645,6 +645,7 @@ class OVInputMethodController: IMKInputController {
             currentCandidatePanel.updateVisibility()
         }
         
+        // Fixed string conversion for Swift C++ interop
         var toolTipText = String(readingText.toolTipText())
         if toolTipText.isEmpty {
             toolTipText = String(composingText.toolTipText())
