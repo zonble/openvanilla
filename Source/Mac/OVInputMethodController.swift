@@ -38,10 +38,10 @@ import TooltipUI
 class OVInputMethodController: IMKInputController {
     
     // C++ objects using Swift C++ interop
-    private var composingText = OVTextBufferImpl()
-    private var readingText = OVTextBufferImpl()
-    private var inputMethodContext: OVEventHandlingContext?
-    private var associatedPhrasesContext: OVEventHandlingContext?
+    private var composingText = OpenVanilla.OVTextBufferImpl()
+    private var readingText = OpenVanilla.OVTextBufferImpl()
+    private var inputMethodContext: OpenVanilla.OVEventHandlingContext?
+    private var associatedPhrasesContext: OpenVanilla.OVEventHandlingContext?
     private var associatedPhrasesContextInUse: Bool = false
     private weak var currentClient: (IMKTextInput & NSObjectProtocol)?
     
@@ -301,7 +301,7 @@ class OVInputMethodController: IMKInputController {
         }
         
         // Clear tooltips if present
-        if !readingText.toolTipText().isEmpty() || !composingText.toolTipText().isEmpty() {
+        if !String(readingText.toolTipText()).isEmpty || !String(composingText.toolTipText()).isEmpty {
             NSLog("clear tooltip")
             readingText.clearToolTip()
             composingText.clearToolTip()
@@ -325,7 +325,7 @@ class OVInputMethodController: IMKInputController {
         
         let isNumpadKey = numKeys.contains(virtualKeyCode)
         
-        var key: OVKey
+        var key: OpenVanilla.OVKey
         var unicharCode: UniChar = 0
         
         if !chars.isEmpty {
@@ -356,43 +356,43 @@ class OVInputMethodController: IMKInputController {
             // Remap function key codes
             switch unicharCode {
             case UInt16(NSUpArrowFunctionKey):
-                remappedKeyCode = UInt16(OVKeyCode.Up.rawValue)
+                remappedKeyCode = UInt16(OpenVanilla.OVKeyCode.Up.rawValue)
             case UInt16(NSDownArrowFunctionKey):
-                remappedKeyCode = UInt16(OVKeyCode.Down.rawValue)
+                remappedKeyCode = UInt16(OpenVanilla.OVKeyCode.Down.rawValue)
             case UInt16(NSLeftArrowFunctionKey):
-                remappedKeyCode = UInt16(OVKeyCode.Left.rawValue)
+                remappedKeyCode = UInt16(OpenVanilla.OVKeyCode.Left.rawValue)
             case UInt16(NSRightArrowFunctionKey):
-                remappedKeyCode = UInt16(OVKeyCode.Right.rawValue)
+                remappedKeyCode = UInt16(OpenVanilla.OVKeyCode.Right.rawValue)
             case UInt16(NSDeleteFunctionKey):
-                remappedKeyCode = UInt16(OVKeyCode.Delete.rawValue)
+                remappedKeyCode = UInt16(OpenVanilla.OVKeyCode.Delete.rawValue)
             case UInt16(NSHomeFunctionKey):
-                remappedKeyCode = UInt16(OVKeyCode.Home.rawValue)
+                remappedKeyCode = UInt16(OpenVanilla.OVKeyCode.Home.rawValue)
             case UInt16(NSEndFunctionKey):
-                remappedKeyCode = UInt16(OVKeyCode.End.rawValue)
+                remappedKeyCode = UInt16(OpenVanilla.OVKeyCode.End.rawValue)
             case UInt16(NSPageUpFunctionKey):
-                remappedKeyCode = UInt16(OVKeyCode.PageUp.rawValue)
+                remappedKeyCode = UInt16(OpenVanilla.OVKeyCode.PageUp.rawValue)
             case UInt16(NSPageDownFunctionKey):
-                remappedKeyCode = UInt16(OVKeyCode.PageDown.rawValue)
+                remappedKeyCode = UInt16(OpenVanilla.OVKeyCode.PageDown.rawValue)
             case UInt16(NSF1FunctionKey):
-                remappedKeyCode = UInt16(OVKeyCode.F1.rawValue)
+                remappedKeyCode = UInt16(OpenVanilla.OVKeyCode.F1.rawValue)
             case UInt16(NSF2FunctionKey):
-                remappedKeyCode = UInt16(OVKeyCode.F2.rawValue)
+                remappedKeyCode = UInt16(OpenVanilla.OVKeyCode.F2.rawValue)
             case UInt16(NSF3FunctionKey):
-                remappedKeyCode = UInt16(OVKeyCode.F3.rawValue)
+                remappedKeyCode = UInt16(OpenVanilla.OVKeyCode.F3.rawValue)
             case UInt16(NSF4FunctionKey):
-                remappedKeyCode = UInt16(OVKeyCode.F4.rawValue)
+                remappedKeyCode = UInt16(OpenVanilla.OVKeyCode.F4.rawValue)
             case UInt16(NSF5FunctionKey):
-                remappedKeyCode = UInt16(OVKeyCode.F5.rawValue)
+                remappedKeyCode = UInt16(OpenVanilla.OVKeyCode.F5.rawValue)
             case UInt16(NSF6FunctionKey):
-                remappedKeyCode = UInt16(OVKeyCode.F6.rawValue)
+                remappedKeyCode = UInt16(OpenVanilla.OVKeyCode.F6.rawValue)
             case UInt16(NSF7FunctionKey):
-                remappedKeyCode = UInt16(OVKeyCode.F7.rawValue)
+                remappedKeyCode = UInt16(OpenVanilla.OVKeyCode.F7.rawValue)
             case UInt16(NSF8FunctionKey):
-                remappedKeyCode = UInt16(OVKeyCode.F8.rawValue)
+                remappedKeyCode = UInt16(OpenVanilla.OVKeyCode.F8.rawValue)
             case UInt16(NSF9FunctionKey):
-                remappedKeyCode = UInt16(OVKeyCode.F9.rawValue)
+                remappedKeyCode = UInt16(OpenVanilla.OVKeyCode.F9.rawValue)
             case UInt16(NSF10FunctionKey):
-                remappedKeyCode = UInt16(OVKeyCode.F10.rawValue)
+                remappedKeyCode = UInt16(OpenVanilla.OVKeyCode.F10.rawValue)
             default:
                 break
             }
@@ -419,7 +419,7 @@ class OVInputMethodController: IMKInputController {
     
     // MARK: - Private methods
     
-    private func handleOVKey(_ key: OVKey, client: Any?) -> Bool {
+    private func handleOVKey(_ key: OpenVanilla.OVKey, client: Any?) -> Bool {
         guard let inputMethodContext = inputMethodContext else {
             return false
         }
@@ -498,8 +498,8 @@ class OVInputMethodController: IMKInputController {
             if let associatedPhrasesContext = associatedPhrasesContext,
                OVModuleManager.default.associatedPhrasesAroundFilterEnabled {
                 
-                var tempReading = OVTextBufferImpl()
-                var tempComposing = OVTextBufferImpl()
+                var tempReading = OpenVanilla.OVTextBufferImpl()
+                var tempComposing = OpenVanilla.OVTextBufferImpl()
                 
                 associatedPhrasesContextInUse = associatedPhrasesContext.handleDirectText(
                     commitText, tempReading, tempComposing,
@@ -606,7 +606,7 @@ class OVInputMethodController: IMKInputController {
     }
     
     private func updateClientComposingBuffer(_ sender: Any?) {
-        let combinedText = OVTextBufferCombinator(composingText, readingText)
+        let combinedText = OpenVanilla.OVTextBufferCombinator(composingText, readingText)
         let attrString = combinedText.combinedAttributedString()
         let selectionRange = combinedText.selectionRange()
         
