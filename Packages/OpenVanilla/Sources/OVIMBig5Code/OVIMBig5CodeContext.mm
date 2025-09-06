@@ -1,6 +1,9 @@
 #include "OVIMBig5CodeContext.h"
+#include <climits>  // for CHAR_BIT
+#ifdef __APPLE__
 #import <Foundation/Foundation.h>
 #import <CoreFoundation/CoreFoundation.h>
+#endif
 
 using namespace OpenVanilla;
 
@@ -71,6 +74,7 @@ bool OVIMBig5CodeContext::handleKey(OVKey *key, OVTextBuffer *readingText, OVTex
             char bytes[3] = {0};
             bytes[0] = (big5Code >> CHAR_BIT) & 0xff;
             bytes[1] = static_cast<char>(big5Code & 0xff);
+#ifdef __APPLE__
             CFStringRef cfString = CFStringCreateWithCString(NULL, bytes, kCFStringEncodingBig5);
             if (cfString == NULL) {
                 m_code.clear();
@@ -86,6 +90,14 @@ bool OVIMBig5CodeContext::handleKey(OVKey *key, OVTextBuffer *readingText, OVTex
             composingText->commit();
             m_code.clear();
             CFRelease(cfString);
+#else
+            // Non-Apple platforms: simple fallback
+            readingText->clear();
+            readingText->updateDisplay();
+            composingText->setText(string(bytes));  // Basic fallback
+            composingText->commit();
+            m_code.clear();
+#endif
         }
         else {
             readingText->setText(string("[內碼]") + m_code);
