@@ -168,13 +168,11 @@
 		6ABBAEFC15CD58F90080EE7D /* OpenVanilla-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "OpenVanilla-Info.plist"; sourceTree = "<group>"; };
 		6ABBAEFE15CD58F90080EE7D /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		6ABBAF0215CD58F90080EE7D /* OpenVanilla-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "OpenVanilla-Prefix.pch"; sourceTree = "<group>"; };
-		6ABBAF1D15CD615B0080EE7D /* OVInputMethodController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OVInputMethodController.h; sourceTree = "<group>"; };
 		6ABBAF2615CD617D0080EE7D /* OpenVanilla-InputMenu.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; name = "OpenVanilla-InputMenu.tiff"; path = "Images/OpenVanilla-InputMenu.tiff"; sourceTree = SOURCE_ROOT; };
 		6ABBAF2915CD61B60080EE7D /* InputMethodKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = InputMethodKit.framework; path = System/Library/Frameworks/InputMethodKit.framework; sourceTree = SDKROOT; };
 		6ABBAF2B15CD61BE0080EE7D /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = SDKROOT; };
 		6AC9E19321AB554000AF6B69 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		6AC9E19421AB554000AF6B69 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
-		6ACB49C215E49EA700380B82 /* OVInputMethodController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OVInputMethodController.mm; sourceTree = "<group>"; };
 		D5A1B2002F01000100000001 /* OVInputMethodController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OVInputMethodController.swift; sourceTree = "<group>"; };
 		6ACD128723688A32005046C7 /* NotarizedArchives */ = {isa = PBXFileReference; lastKnownFileType = folder; path = NotarizedArchives; sourceTree = "<group>"; };
 		6AD29A4C2ED4CA6000384421 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = en; path = en.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
@@ -370,9 +368,7 @@
 				D49B8EB42D773BD800D56D75 /* CinManager */,
 				D4AF7DA72B3097430025DAAF /* Preferences */,
 				D4F50BBF2B289C8C00C6C364 /* AppDelegate.swift */,
-				6ABBAF1D15CD615B0080EE7D /* OVInputMethodController.h */,
 				D5A1B2002F01000100000001 /* OVInputMethodController.swift */,
-				6ACB49C215E49EA700380B82 /* OVInputMethodController.mm */,
 				D4F50BC82B28A15300C6C364 /* NonModalAlertWindowController.swift */,
 				D4F50BBB2B28898E00C6C364 /* UpdateChecker.swift */,
 				D4F50BBD2B28998500C6C364 /* UserDefaultsPropertyWrapper.swift */,
