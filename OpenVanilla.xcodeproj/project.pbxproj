@@ -978,6 +978,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = org.openvanilla.inputmethod.OpenVanilla;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ENABLE_CXX_INTEROP = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "Source/Mac/OpenVanilla-Bridging-Header.h";
 				SWIFT_OBJC_INTEROP_MODE = objcxx;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -1012,6 +1013,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = org.openvanilla.inputmethod.OpenVanilla;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ENABLE_CXX_INTEROP = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "Source/Mac/OpenVanilla-Bridging-Header.h";
 				SWIFT_OBJC_INTEROP_MODE = objcxx;
 				SWIFT_VERSION = 5.0;
