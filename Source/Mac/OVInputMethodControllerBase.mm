@@ -242,7 +242,7 @@ using namespace OpenVanilla;
         [super showPreferences:sender];
     }
     else {
-        [(AppDelegate * )NSApp.delegate showPreferences];
+        [(AppDelegate *)NSApp.delegate showPreferences];
     }
     [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
 }
