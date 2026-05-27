@@ -34,7 +34,7 @@
 		6ABBAF2815CD617D0080EE7D /* OpenVanilla-InputMenu.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 6ABBAF2615CD617D0080EE7D /* OpenVanilla-InputMenu.tiff */; };
 		6ABBAF2A15CD61B60080EE7D /* InputMethodKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6ABBAF2915CD61B60080EE7D /* InputMethodKit.framework */; };
 		6ABBAF2C15CD61BE0080EE7D /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6ABBAF2B15CD61BE0080EE7D /* Carbon.framework */; };
-		6ACB49C315E49EA700380B82 /* OVInputMethodController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6ACB49C215E49EA700380B82 /* OVInputMethodController.mm */; };
+		D5A1B2012F01000100000001 /* OVInputMethodController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5A1B2002F01000100000001 /* OVInputMethodController.swift */; };
 		6ACD128823688A32005046C7 /* NotarizedArchives in Resources */ = {isa = PBXBuildFile; fileRef = 6ACD128723688A32005046C7 /* NotarizedArchives */; };
 		6AD29A4D2ED4CA6000384421 /* Localizable.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = 6AD29A4B2ED4CA6000384421 /* Localizable.stringsdict */; };
 		6AECB188253A6314008EB6E4 /* OpenVanilla.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6AECB187253A6314008EB6E4 /* OpenVanilla.xcassets */; };
@@ -175,6 +175,7 @@
 		6AC9E19321AB554000AF6B69 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		6AC9E19421AB554000AF6B69 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		6ACB49C215E49EA700380B82 /* OVInputMethodController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OVInputMethodController.mm; sourceTree = "<group>"; };
+		D5A1B2002F01000100000001 /* OVInputMethodController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OVInputMethodController.swift; sourceTree = "<group>"; };
 		6ACD128723688A32005046C7 /* NotarizedArchives */ = {isa = PBXFileReference; lastKnownFileType = folder; path = NotarizedArchives; sourceTree = "<group>"; };
 		6AD29A4C2ED4CA6000384421 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = en; path = en.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		6AD29A4E2ED4CA7100384421 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.stringsdict"; sourceTree = "<group>"; };
@@ -370,6 +371,7 @@
 				D4AF7DA72B3097430025DAAF /* Preferences */,
 				D4F50BBF2B289C8C00C6C364 /* AppDelegate.swift */,
 				6ABBAF1D15CD615B0080EE7D /* OVInputMethodController.h */,
+				D5A1B2002F01000100000001 /* OVInputMethodController.swift */,
 				6ACB49C215E49EA700380B82 /* OVInputMethodController.mm */,
 				D4F50BC82B28A15300C6C364 /* NonModalAlertWindowController.swift */,
 				D4F50BBB2B28898E00C6C364 /* UpdateChecker.swift */,
@@ -661,7 +663,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D49B8EB62D773BE800D56D75 /* CinManager.swift in Sources */,
-				6ACB49C315E49EA700380B82 /* OVInputMethodController.mm in Sources */,
+				D5A1B2012F01000100000001 /* OVInputMethodController.swift in Sources */,
 				D449C63F2B2FFA260060653A /* GeneralPreferencesViewController.swift in Sources */,
 				D40957A42EBF0C8800FA0331 /* PreferencesHelper.swift in Sources */,
 				D449C63D2B2FF0FC0060653A /* ArrayPreferencesViewController.swift in Sources */,
