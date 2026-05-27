@@ -33,7 +33,6 @@ import ModuleManager
 import OpenVanilla
 import OpenVanillaImpl
 import OVAFAssociatedPhrases
-import TooltipUI
 
 @objc(OVInputMethodController)
 final class OVInputMethodController: IMKInputController {
@@ -43,7 +42,6 @@ final class OVInputMethodController: IMKInputController {
     private var associatedPhrasesContext: UnsafeMutablePointer<OVEventHandlingContext>?
     private var associatedPhrasesContextInUse = false
     private weak var currentClient: AnyObject?
-    private let toolTipWindowController = OVToolTipWindowController()
 
     private static let numKeys: [UInt16] = [
         0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5b, 0x5c, 0x41, 0x45, 0x4e, 0x43, 0x4b, 0x51,
@@ -218,7 +216,7 @@ final class OVInputMethodController: IMKInputController {
         composingText.pointee.clear()
         readingText.pointee.clear()
         manager.candidateService.resetAll()
-        toolTipWindowController.window?.orderOut(self)
+        manager.orderOutTooltipWindow()
         manager.writeOutActiveInputMethodSettings()
 
         currentClient = nil
@@ -283,7 +281,7 @@ final class OVInputMethodController: IMKInputController {
         {
             readingText.pointee.clearToolTip()
             composingText.pointee.clearToolTip()
-            toolTipWindowController.window?.orderOut(self)
+            manager.orderOutTooltipWindow()
         }
 
         let chars = event.characters ?? ""
@@ -396,7 +394,7 @@ final class OVInputMethodController: IMKInputController {
         composingText.pointee.clear()
         readingText.pointee.clear()
         manager.candidateService.resetAll()
-        toolTipWindowController.window?.orderOut(self)
+        manager.orderOutTooltipWindow()
 
         if inputMethodContext == nil, let activeInputMethod = manager.activeInputMethod {
             inputMethodContext = activeInputMethod.createContext()
@@ -422,9 +420,7 @@ final class OVInputMethodController: IMKInputController {
         let candidateService = manager.candidateService
         let loaderService = manager.loaderService
 
-        let panel = unsafeBitCast(
-            candidateService.pointee.useOneDimensionalCandidatePanel(),
-            to: UnsafeMutablePointer<OVOneDimensionalCandidatePanelImpl>?.self)
+        let panel = currentCandidatePanelPointer(from: candidateService)
 
         let handled: Bool
         if associatedPhrasesContextInUse, let associatedPhrasesContext {
@@ -490,9 +486,9 @@ final class OVInputMethodController: IMKInputController {
         _ = sender.attributes(forCharacterIndex: cursorIndex, lineHeightRectangle: &lineHeightRect)
 
         let manager = OVModuleManager.default
-        let currentCandidatePanel = unsafeBitCast(
-            manager.candidateService.pointee.useOneDimensionalCandidatePanel(),
-            to: UnsafeMutablePointer<OVOneDimensionalCandidatePanelImpl>.self)
+        guard let currentCandidatePanel = currentCandidatePanelPointer(from: manager.candidateService) else {
+            return
+        }
 
         currentCandidatePanel.pointee.setPanelOrigin(lineHeightRect.origin, lineHeightRect.size.height + 4.0)
         currentCandidatePanel.pointee.updateVisibility()
@@ -508,8 +504,8 @@ final class OVInputMethodController: IMKInputController {
                 toolTipOrigin.y += lineHeightRect.size.height + 4.0
             }
 
-            toolTipWindowController.showTooltip(toolTipText, atPoint: toolTipOrigin)
-            toolTipWindowController.window?.orderFront(self)
+            manager.showTooltip(toolTipText, atPoint: toolTipOrigin)
+            manager.orderFrontTooltipWindow()
         }
     }
 
@@ -573,9 +569,7 @@ final class OVInputMethodController: IMKInputController {
     private func startOrStopAssociatedPhrasesContext() {
         let manager = OVModuleManager.default
         if associatedPhrasesContext == nil, manager.associatedPhrasesAroundFilterEnabled {
-            let associatedPhrasesModule = unsafeBitCast(
-                manager.associatedPhrasesModule,
-                to: UnsafeMutablePointer<OVAFAssociatedPhrases>.self)
+            let associatedPhrasesModule = associatedPhrasesModulePointer(from: manager)
             associatedPhrasesContext = associatedPhrasesModule.pointee.createContext()
             if let context = associatedPhrasesContext {
                 context.pointee.startSession(manager.loaderService)
@@ -593,6 +587,7 @@ final class OVInputMethodController: IMKInputController {
         }
 
         context.pointee.stopSession(OVModuleManager.default.loaderService)
+        OpenVanilla.deleteEventHandlingContext(context)
 
         associatedPhrasesContext = nil
         associatedPhrasesContextInUse = false
@@ -604,6 +599,7 @@ final class OVInputMethodController: IMKInputController {
         }
 
         context.pointee.stopSession(OVModuleManager.default.loaderService)
+        OpenVanilla.deleteEventHandlingContext(context)
         inputMethodContext = nil
     }
 
@@ -619,9 +615,7 @@ final class OVInputMethodController: IMKInputController {
         var handled = false
         var candidatePanelFallThrough = false
 
-        let panel = unsafeBitCast(
-            candidateService.pointee.useOneDimensionalCandidatePanel(),
-            to: UnsafeMutablePointer<OVOneDimensionalCandidatePanelImpl>?.self)
+        let panel = currentCandidatePanelPointer(from: candidateService)
 
         if let panel, panel.pointee.isInControl() {
             let result = panel.pointee.handleKey(&key)
@@ -724,5 +718,19 @@ final class OVInputMethodController: IMKInputController {
         if client.responds(to: selector) {
             _ = client.perform(selector, with: keyboardLayout)
         }
+    }
+
+    private func associatedPhrasesModulePointer(from manager: OVModuleManager) -> UnsafeMutablePointer<OVAFAssociatedPhrases> {
+        unsafeBitCast(
+            manager.associatedPhrasesModule,
+            to: UnsafeMutablePointer<OVAFAssociatedPhrases>.self)
+    }
+
+    private func currentCandidatePanelPointer(
+        from candidateService: UnsafeMutablePointer<OVCandidateServiceImpl>
+    ) -> UnsafeMutablePointer<OVOneDimensionalCandidatePanelImpl>? {
+        unsafeBitCast(
+            candidateService.pointee.useOneDimensionalCandidatePanel(),
+            to: UnsafeMutablePointer<OVOneDimensionalCandidatePanelImpl>?.self)
     }
 }

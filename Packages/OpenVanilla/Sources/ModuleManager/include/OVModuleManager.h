@@ -69,6 +69,9 @@ namespace OpenVanilla {
 - (BOOL)removeCustomTableBasedInputMethod:(NSString *)identifier error:(NSError **)error;
 
 - (NSString *)filteredStringWithString:(NSString *)input;
+- (void)showTooltip:(NSString *)text atPoint:(NSPoint)point;
+- (void)orderFrontTooltipWindow;
+- (void)orderOutTooltipWindow;
 
 @property (class, readonly) OVModuleManager *defaultManager;
 

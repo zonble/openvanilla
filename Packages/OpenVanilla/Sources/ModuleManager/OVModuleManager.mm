@@ -553,6 +553,21 @@ static string InputMethodConfigIdentifier(const string &identifier) {
     return converted;
 }
 
+- (void)showTooltip:(NSString *)text atPoint:(NSPoint)point
+{
+    [_toolTipWindowController showTooltip:text atPoint:point];
+}
+
+- (void)orderFrontTooltipWindow
+{
+    [_toolTipWindowController.window orderFront:self];
+}
+
+- (void)orderOutTooltipWindow
+{
+    [_toolTipWindowController.window orderOut:self];
+}
+
 #pragma mark - Properties
 
 - (NSString *)activeInputMethodIdentifier

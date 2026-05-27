@@ -88,6 +88,11 @@ namespace OpenVanilla {
             return inputText;
         }
     };
+
+    inline void deleteEventHandlingContext(OVEventHandlingContext* context)
+    {
+        delete context;
+    }
 };
 
 #endif
