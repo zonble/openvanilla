@@ -87,7 +87,7 @@ final class OVInputMethodController: IMKInputController {
             item.representedObject = identifier
             item.target = self
             item.action = #selector(changeInputMethodAction(_:))
-            if (activeInputMethodIdentifier as String?) == identifier {
+            if activeInputMethodIdentifier == identifier {
                 item.state = .on
             }
             menu.addItem(item)
@@ -153,7 +153,7 @@ final class OVInputMethodController: IMKInputController {
         let manager = OVModuleManager.default
         manager.candidateService.pointee.resetAll()
 
-        let activeInputMethodIdentifier = manager.activeInputMethodIdentifier as String?
+        let activeInputMethodIdentifier = activeInputMethodIdentifierString(from: manager)
         let identifiers = manager.inputMethodIdentifiers
         let excludedIdentifiers = manager.excludedIdentifiers
         let availableInputMethods = identifiers.filter { !excludedIdentifiers.contains($0) }
@@ -163,11 +163,11 @@ final class OVInputMethodController: IMKInputController {
             copy.removeAll { $0 == first }
             manager.excludedIdentifiers = copy
             manager.selectInputMethod(first)
-        } else if !availableInputMethods.contains(activeInputMethodIdentifier ?? ""), let first = identifiers.first {
+        } else if !availableInputMethods.contains(activeInputMethodIdentifier), let first = identifiers.first {
             manager.selectInputMethod(first)
         }
 
-        let keyboardLayout = manager.alphanumericKeyboardLayout(forInputMethod: activeInputMethodIdentifier ?? "")
+        let keyboardLayout = manager.alphanumericKeyboardLayout(forInputMethod: activeInputMethodIdentifierString(from: manager))
         overrideKeyboardIfPossible(client, keyboardLayout: keyboardLayout)
 
         manager.synchronizeActiveInputMethodSettings()
@@ -263,7 +263,7 @@ final class OVInputMethodController: IMKInputController {
 
         if event.type == .flagsChanged {
             let shared = manager.sharedAlphanumericKeyboardLayoutIdentifier
-            let inputMethodLayout = manager.alphanumericKeyboardLayout(forInputMethod: manager.activeInputMethodIdentifier)
+            let inputMethodLayout = manager.alphanumericKeyboardLayout(forInputMethod: activeInputMethodIdentifierString(from: manager))
             if event.modifierFlags.contains(.shift) && manager.fallbackToSharedAlphanumericKeyboardLayoutWhenShiftPressed {
                 overrideKeyboardIfPossible(sender, keyboardLayout: shared)
                 return false
@@ -403,7 +403,7 @@ final class OVInputMethodController: IMKInputController {
         if let context = inputMethodContext {
             context.pointee.startSession(manager.loaderService)
 
-            let keyboardLayout = manager.alphanumericKeyboardLayout(forInputMethod: (manager.activeInputMethodIdentifier as String?) ?? "")
+            let keyboardLayout = manager.alphanumericKeyboardLayout(forInputMethod: activeInputMethodIdentifierString(from: manager))
             overrideKeyboardIfPossible(currentClient, keyboardLayout: keyboardLayout)
         }
     }
@@ -732,5 +732,12 @@ final class OVInputMethodController: IMKInputController {
         unsafeBitCast(
             candidateService.pointee.useOneDimensionalCandidatePanel(),
             to: UnsafeMutablePointer<OpenVanilla.OVOneDimensionalCandidatePanelImpl>?.self)
+    }
+
+    private func activeInputMethodIdentifierString(from manager: OVModuleManager) -> String {
+        if let identifier = manager.activeInputMethodIdentifier {
+            return identifier as String
+        }
+        return ""
     }
 }
