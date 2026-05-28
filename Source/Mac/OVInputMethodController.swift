@@ -36,10 +36,10 @@ import OVAFAssociatedPhrases
 
 @objc(OVInputMethodController)
 final class OVInputMethodController: IMKInputController {
-    private var composingText = UnsafeMutablePointer<OVTextBufferImpl>.allocate(capacity: 1)
-    private var readingText = UnsafeMutablePointer<OVTextBufferImpl>.allocate(capacity: 1)
-    private var inputMethodContext: UnsafeMutablePointer<OVEventHandlingContext>?
-    private var associatedPhrasesContext: UnsafeMutablePointer<OVEventHandlingContext>?
+    private var composingText = UnsafeMutablePointer<OpenVanilla.OVTextBufferImpl>.allocate(capacity: 1)
+    private var readingText = UnsafeMutablePointer<OpenVanilla.OVTextBufferImpl>.allocate(capacity: 1)
+    private var inputMethodContext: UnsafeMutablePointer<OpenVanilla.OVEventHandlingContext>?
+    private var associatedPhrasesContext: UnsafeMutablePointer<OpenVanilla.OVEventHandlingContext>?
     private var associatedPhrasesContextInUse = false
     private weak var currentClient: AnyObject?
 
@@ -50,13 +50,13 @@ final class OVInputMethodController: IMKInputController {
     @objc(initWithServer:delegate:client:)
     override init!(server: IMKServer!, delegate: Any!, client inputClient: Any!) {
         super.init(server: server, delegate: delegate, client: inputClient)
-        composingText.initialize(to: OVTextBufferImpl())
-        readingText.initialize(to: OVTextBufferImpl())
+        composingText.initialize(to: OpenVanilla.OVTextBufferImpl())
+        readingText.initialize(to: OpenVanilla.OVTextBufferImpl())
 
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(handleInputMethodChange(_:)),
-            name: NSNotification.Name(rawValue: OVModuleManagerDidUpdateActiveInputMethodNotification),
+            name: OVModuleManagerDidUpdateActiveInputMethodNotification,
             object: OVModuleManager.default)
     }
 
@@ -87,7 +87,7 @@ final class OVInputMethodController: IMKInputController {
             item.representedObject = identifier
             item.target = self
             item.action = #selector(changeInputMethodAction(_:))
-            if activeInputMethodIdentifier == identifier {
+            if (activeInputMethodIdentifier as String?) == identifier {
                 item.state = .on
             }
             menu.addItem(item)
@@ -151,9 +151,9 @@ final class OVInputMethodController: IMKInputController {
     @objc(activateServer:)
     override func activateServer(_ client: Any!) {
         let manager = OVModuleManager.default
-        manager.candidateService.resetAll()
+        manager.candidateService.pointee.resetAll()
 
-        let activeInputMethodIdentifier = manager.activeInputMethodIdentifier
+        let activeInputMethodIdentifier = manager.activeInputMethodIdentifier as String?
         let identifiers = manager.inputMethodIdentifiers
         let excludedIdentifiers = manager.excludedIdentifiers
         let availableInputMethods = identifiers.filter { !excludedIdentifiers.contains($0) }
@@ -167,13 +167,13 @@ final class OVInputMethodController: IMKInputController {
             manager.selectInputMethod(first)
         }
 
-        let keyboardLayout = manager.alphanumericKeyboardLayout(forInputMethod: manager.activeInputMethodIdentifier)
+        let keyboardLayout = manager.alphanumericKeyboardLayout(forInputMethod: activeInputMethodIdentifier ?? "")
         overrideKeyboardIfPossible(client, keyboardLayout: keyboardLayout)
 
         manager.synchronizeActiveInputMethodSettings()
 
-        if inputMethodContext == nil, let activeInputMethod = manager.activeInputMethod {
-            inputMethodContext = activeInputMethod.createContext()
+        if inputMethodContext == nil {
+            inputMethodContext = manager.activeInputMethod.pointee.createContext()
         }
 
         if let context = inputMethodContext {
@@ -186,11 +186,11 @@ final class OVInputMethodController: IMKInputController {
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(handleCandidateSelected(_:)),
-            name: NSNotification.Name(rawValue: OVOneDimensionalCandidatePanelImplDidSelectCandidateNotification),
+            name: OVOneDimensionalCandidatePanelImplDidSelectCandidateNotification,
             object: nil)
 
         if UserDefaults.standard.bool(forKey: OVCheckForUpdateKey) {
-            UpdateChecker.sharedInstance.checkForUpdateIfNeeded()
+            UpdateChecker.shared.checkForUpdateIfNeeded()
         }
     }
 
@@ -215,7 +215,7 @@ final class OVInputMethodController: IMKInputController {
 
         composingText.pointee.clear()
         readingText.pointee.clear()
-        manager.candidateService.resetAll()
+        manager.candidateService.pointee.resetAll()
         manager.orderOutTooltipWindow()
         manager.writeOutActiveInputMethodSettings()
 
@@ -223,7 +223,7 @@ final class OVInputMethodController: IMKInputController {
 
         NotificationCenter.default.removeObserver(
             self,
-            name: NSNotification.Name(rawValue: OVOneDimensionalCandidatePanelImplDidSelectCandidateNotification),
+            name: OVOneDimensionalCandidatePanelImplDidSelectCandidateNotification,
             object: nil)
     }
 
@@ -345,7 +345,7 @@ final class OVInputMethodController: IMKInputController {
 
         let loaderService = manager.loaderService
 
-        let key: OVKey
+        let key: OpenVanilla.OVKey
         if unicodeScalar < 128 {
             key = loaderService.pointee.makeOVKey(
                 Int32(unicodeScalar),
@@ -393,17 +393,17 @@ final class OVInputMethodController: IMKInputController {
 
         composingText.pointee.clear()
         readingText.pointee.clear()
-        manager.candidateService.resetAll()
+        manager.candidateService.pointee.resetAll()
         manager.orderOutTooltipWindow()
 
-        if inputMethodContext == nil, let activeInputMethod = manager.activeInputMethod {
-            inputMethodContext = activeInputMethod.createContext()
+        if inputMethodContext == nil {
+            inputMethodContext = manager.activeInputMethod.pointee.createContext()
         }
 
         if let context = inputMethodContext {
             context.pointee.startSession(manager.loaderService)
 
-            let keyboardLayout = manager.alphanumericKeyboardLayout(forInputMethod: manager.activeInputMethodIdentifier)
+            let keyboardLayout = manager.alphanumericKeyboardLayout(forInputMethod: (manager.activeInputMethodIdentifier as String?) ?? "")
             overrideKeyboardIfPossible(currentClient, keyboardLayout: keyboardLayout)
         }
     }
@@ -464,7 +464,7 @@ final class OVInputMethodController: IMKInputController {
             return
         }
 
-        var combinedText = OVTextBufferCombinator(composingText, readingText)
+        var combinedText = OpenVanilla.OVTextBufferCombinator(composingText, readingText)
         let attrString = combinedText.combinedAttributedString()
         let selectionRange = combinedText.selectionRange()
 
@@ -603,7 +603,7 @@ final class OVInputMethodController: IMKInputController {
         inputMethodContext = nil
     }
 
-    private func handleOVKey(_ key: OVKey, client: AnyObject?) -> Bool {
+    private func handleOVKey(_ key: OpenVanilla.OVKey, client: AnyObject?) -> Bool {
         guard let inputMethodContext = inputMethodContext else {
             return false
         }
@@ -720,17 +720,17 @@ final class OVInputMethodController: IMKInputController {
         }
     }
 
-    private func associatedPhrasesModulePointer(from manager: OVModuleManager) -> UnsafeMutablePointer<OVAFAssociatedPhrases> {
+    private func associatedPhrasesModulePointer(from manager: OVModuleManager) -> UnsafeMutablePointer<OpenVanilla.OVAFAssociatedPhrases> {
         unsafeBitCast(
             manager.associatedPhrasesModule,
-            to: UnsafeMutablePointer<OVAFAssociatedPhrases>.self)
+            to: UnsafeMutablePointer<OpenVanilla.OVAFAssociatedPhrases>.self)
     }
 
     private func currentCandidatePanelPointer(
-        from candidateService: UnsafeMutablePointer<OVCandidateServiceImpl>
-    ) -> UnsafeMutablePointer<OVOneDimensionalCandidatePanelImpl>? {
+        from candidateService: UnsafeMutablePointer<OpenVanilla.OVCandidateServiceImpl>
+    ) -> UnsafeMutablePointer<OpenVanilla.OVOneDimensionalCandidatePanelImpl>? {
         unsafeBitCast(
             candidateService.pointee.useOneDimensionalCandidatePanel(),
-            to: UnsafeMutablePointer<OVOneDimensionalCandidatePanelImpl>?.self)
+            to: UnsafeMutablePointer<OpenVanilla.OVOneDimensionalCandidatePanelImpl>?.self)
     }
 }
